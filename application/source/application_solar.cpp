@@ -66,10 +66,15 @@ void ApplicationSolar::render() const
   }
 }
 
-  void ApplicationSolar::upload_planet_transforms(planet Planet) const {
+  void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     glUseProgram(m_shaders.at("planet").handle);
 
     glm::fmat4 model_matrix;
+
+    //if(planet.m_surroundet != 0)
+    {
+
+    }
 
     model_matrix = glm::rotate(glm::fmat4{}, float(glfwGetTime()) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
     model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * Planet.m_dis_org});

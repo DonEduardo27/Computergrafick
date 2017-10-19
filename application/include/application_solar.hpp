@@ -26,7 +26,7 @@ class ApplicationSolar : public Application {
   //handle delta mouse movement input
   void mouseCallback(double pos_x, double pos_y);
   // does the Matrix multiplication
-  void upload_planet_transforms(planet Planet) const;
+  void upload_planet_transforms(planet const& Planet) const;
 
   // draw all objects
   void render() const;
