@@ -3,9 +3,14 @@
 
 #include <map>
 #include <glbinding/gl/gl.h>
-// use gl definitions from glbinding 
+// use gl definitions from glbinding
 using namespace gl;
 
+struct planet {
+  float m_size = 1.0;
+  float m_rot_speed = 1.0;
+  float m_dis_org = 0.0;
+};
 // gpu representation of model
 struct model_object {
   // vertex array object
@@ -37,8 +42,8 @@ struct shader_program {
    {}
 
   // path to shader source
-  std::string vertex_path; 
-  std::string fragment_path; 
+  std::string vertex_path;
+  std::string fragment_path;
   // object handle
   GLuint handle;
   // uniform locations mapped to name
