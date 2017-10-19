@@ -35,6 +35,8 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 
 void ApplicationSolar::render() const {
   // bind shader to upload uniforms
+  planet dummy;
+
   glUseProgram(m_shaders.at("planet").handle);
 
   glm::fmat4 model_matrix = glm::rotate(glm::fmat4{}, float(glfwGetTime()), glm::fvec3{0.0f, 1.0f, 0.0f});
@@ -47,15 +49,16 @@ void ApplicationSolar::render() const {
   glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"),
                      1, GL_FALSE, glm::value_ptr(normal_matrix));
 
-  // bind the VAO to draw
-  glBindVertexArray(planet_object.vertex_AO);
+  upload_planet_transforms(dummy);
 
-  // draw bound vertex array using bound shader
-  glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
 }
 
-  void ApplicationSolar::upload_planet_transforms(planet Planet){
+  void ApplicationSolar::upload_planet_transforms(planet Planet) const {
+    // bind the VAO to draw
+    glBindVertexArray(planet_object.vertex_AO);
 
+    // draw bound vertex array using bound shader
+    glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
   }
 
 void ApplicationSolar::updateView() {
