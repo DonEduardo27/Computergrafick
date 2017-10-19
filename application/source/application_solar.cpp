@@ -42,12 +42,15 @@ void ApplicationSolar::loadPlanets()
       {
         std::stringstream ss;
         ss<<line;
-        float rot,size,dist;
-        ss>>size;
-        ss>>rot;
-        ss>>dist;
+        float rot,size,dist,speed;
 
-        std::shared_ptr<planet> new_planet = std::make_shared<planet>(planet{0,float(size), float(rot),float(dist),0});
+
+        ss>>size;
+        ss>>speed;
+        ss>>dist;
+        ss>>rot;
+
+        std::shared_ptr<planet> new_planet = std::make_shared<planet>(planet{float(rot) ,float(size), float(speed),float(dist),0});
         planet_container.push_back(new_planet);
       }
       myfile.close();
@@ -68,10 +71,12 @@ void ApplicationSolar::render() const
 
     glm::fmat4 model_matrix;
 
-    model_matrix = glm::rotate(glm::fmat4{}, float(glfwGetTime()) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
+    model_matrix = glm::rotate(glm::fmat4{}, float(glfwGetTime()) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
     model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * Planet.m_dis_org});
     glm::vec3 p_size {Planet.m_size,Planet.m_size,Planet.m_size};
     model_matrix = glm::scale(model_matrix, p_size);
+    model_matrix = glm::rotate(model_matrix, float(glfwGetTime()) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
+
 
     glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
 
