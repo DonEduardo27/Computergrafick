@@ -6,7 +6,7 @@
 #include "model_loader.hpp"
 
 #include <glbinding/gl/gl.h>
-// use gl definitions from glbinding 
+// use gl definitions from glbinding
 using namespace gl;
 
 //dont load gl bindings from glfw
@@ -25,6 +25,12 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 {
   initializeGeometry();
   initializeShaderPrograms();
+
+  planet sonne, merkur;
+
+  auto p_sonne = std::make_shared<planet>(sonne);
+  auto p_merkur = std::make_shared<planet>(merkur);
+  planet_container.insert(std::end(planet_container), {p_sonne,p_merkur});
 }
 
 void ApplicationSolar::render() const {
@@ -65,10 +71,10 @@ void ApplicationSolar::updateProjection() {
 // update uniform locations
 void ApplicationSolar::uploadUniforms() {
   updateUniformLocations();
-  
+
   // bind new shader
   glUseProgram(m_shaders.at("planet").handle);
-  
+
   updateView();
   updateProjection();
 }
@@ -136,7 +142,7 @@ void ApplicationSolar::initializeGeometry() {
 
   // store type of primitive to draw
   planet_object.draw_mode = GL_TRIANGLES;
-  // transfer number of indices to model object 
+  // transfer number of indices to model object
   planet_object.num_elements = GLsizei(planet_model.indices.size());
 }
 

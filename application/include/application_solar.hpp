@@ -5,6 +5,9 @@
 #include "model.hpp"
 #include "structs.hpp"
 
+#include <memory>
+#include <vector>
+
 // gpu representation of model
 class ApplicationSolar : public Application {
  public:
@@ -32,6 +35,7 @@ class ApplicationSolar : public Application {
 
   // cpu representation of model
   model_object planet_object;
+  std::vector<std::shared_ptr<planet>> planet_container;
 };
 
 #endif
