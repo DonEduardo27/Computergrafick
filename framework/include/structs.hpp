@@ -7,12 +7,21 @@
 using namespace gl;
 
 struct planet {
+  planet():
+  m_size{1.0},
+  m_rot_speed{1.0},
+  m_dis_org{0.0}{}
+  
+  planet(float size, float speed, float dist):
+  m_size{size},
+  m_rot_speed{speed},
+  m_dis_org{dist}{}
   //diameter of a Planet
-  float m_size = 1.0;
+  float m_size;
   //Length of an Day on this Planet
-  float m_rot_speed = 1.0;
+  float m_rot_speed;
   //Temperature on the Planet (distance from Centre)
-  float m_dis_org = 0.0;
+  float m_dis_org;
 };
 // gpu representation of model
 struct model_object {
