@@ -34,7 +34,6 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 void ApplicationSolar::loadPlanets()
 {
     std::string line;
-
     std::ifstream myfile("/home/eduardo/Schreibtisch/Computergrafik/planets.txt");
 
     if (myfile.is_open())
@@ -43,20 +42,17 @@ void ApplicationSolar::loadPlanets()
       {
         std::stringstream ss;
         ss<<line;
-
         float rot,size,dist;
-
         ss>>size;
         ss>>rot;
         ss>>dist;
 
-        std::shared_ptr<planet> p_sonne = std::make_shared<planet>(planet{float(size), float(rot),float(dist)});
-        planet_container.push_back(p_sonne);
+        std::shared_ptr<planet> new_planet = std::make_shared<planet>(planet{0,float(size), float(rot),float(dist),0});
+        planet_container.push_back(new_planet);
       }
       myfile.close();
     }
     else std::cout << "Unable to open file";
-
 }
 
 void ApplicationSolar::render() const
@@ -72,7 +68,7 @@ void ApplicationSolar::render() const
 
     glm::fmat4 model_matrix;
 
-    model_matrix = glm::rotate(glm::fmat4{}, float(glfwGetTime()) * Planet.m_rot_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
+    model_matrix = glm::rotate(glm::fmat4{}, float(glfwGetTime()) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
     model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * Planet.m_dis_org});
     glm::vec3 p_size {Planet.m_size,Planet.m_size,Planet.m_size};
     model_matrix = glm::scale(model_matrix, p_size);
