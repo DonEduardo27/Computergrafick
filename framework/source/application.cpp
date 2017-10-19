@@ -2,7 +2,7 @@
 #include "utils.hpp"
 
 #include <glbinding/gl/gl.h>
-// use gl definitions from glbinding 
+// use gl definitions from glbinding
 using namespace gl;
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -12,7 +12,7 @@ using namespace gl;
 
 Application::Application(std::string const& resource_path)
  :m_resource_path{resource_path}
- ,m_view_transform{glm::translate(glm::fmat4{}, glm::fvec3{0.0f, 0.0f, 4.0f})}
+ ,m_view_transform{glm::translate(glm::fmat4{}, glm::fvec3{0.0f, 0.0f, 4.0f})}//cam
  ,m_view_projection{1.0}
  ,m_shaders{}
 {}

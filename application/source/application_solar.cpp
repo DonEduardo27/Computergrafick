@@ -35,20 +35,19 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 
 void ApplicationSolar::render() const {
   // bind shader to upload uniforms
-  planet sonne;
-  sonne.m_rot_speed = 20;
-  sonne.m_dis_org = 1.2;
-  sonne.m_size =1;
+  //planet sonne;
+  planet_container[0]->m_rot_speed = 20;
+  planet_container[0]->m_dis_org = 1.2;
+  planet_container[0]->m_size =1;
 
   // bind shader to upload uniforms
-  planet merkur;
-  merkur.m_rot_speed = 2;
-  merkur.m_dis_org = 0.2;
-  merkur.m_size =1;
+  //planet merkur;
+  planet_container[1]->m_rot_speed = 2;
+  planet_container[1]->m_dis_org = 0.2;
+  planet_container[1]->m_size =1;
 
-  /*for (size_t planet = 0; planet < count; planet++)*/ {
-    upload_planet_transforms(sonne);
-    upload_planet_transforms(merkur);
+  for (auto i : planet_container ) {
+    upload_planet_transforms(*i);
   }
 
 }
