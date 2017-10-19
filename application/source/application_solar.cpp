@@ -13,6 +13,9 @@ using namespace gl;
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <sstream>
+#include <fstream>
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -30,12 +33,30 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 }
 void ApplicationSolar::loadPlanets()
 {
-  std::shared_ptr<planet> p_sonne = std::make_shared<planet>(planet{1,20,0});
-  std::shared_ptr<planet> p_wonne = std::make_shared<planet>(planet{2,3,40});
-  std::shared_ptr<planet> p_tonne = std::make_shared<planet>(planet{3,4,50});
-  std::shared_ptr<planet> p_nonne = std::make_shared<planet>(planet{5,6,70});
+    std::string line;
 
-  planet_container.insert(std::end(planet_container), {p_sonne,p_wonne,p_tonne,p_nonne});
+    std::ifstream myfile("/home/eduardo/Schreibtisch/Computergrafik/planets.txt");
+
+    if (myfile.is_open())
+    {
+      while ( getline (myfile,line) )
+      {
+        std::stringstream ss;
+        ss<<line;
+
+        float rot,size,dist;
+
+        ss>>size;
+        ss>>rot;
+        ss>>dist;
+
+        std::shared_ptr<planet> p_sonne = std::make_shared<planet>(planet{float(size), float(rot),float(dist)});
+        planet_container.push_back(p_sonne);
+      }
+      myfile.close();
+    }
+    else std::cout << "Unable to open file";
+
 }
 
 void ApplicationSolar::render() const
