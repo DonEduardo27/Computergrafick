@@ -26,25 +26,16 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   initializeGeometry();
   initializeShaderPrograms();
 
-  planet sonne, merkur;
+  std::shared_ptr<planet> p_sonne = std::make_shared<planet>(planet{1,2,3});
+  std::shared_ptr<planet> p_wonne = std::make_shared<planet>(planet{2,3,4});
+  std::shared_ptr<planet> p_tonne = std::make_shared<planet>(planet{3,4,5});
+  std::shared_ptr<planet> p_nonne = std::make_shared<planet>(planet{5,6,7});
 
-  auto p_sonne = std::make_shared<planet>(sonne);
-  auto p_merkur = std::make_shared<planet>(merkur);
-  planet_container.insert(std::end(planet_container), {p_sonne,p_merkur});
+  planet_container.insert(std::end(planet_container), {p_sonne,p_wonne,p_tonne,p_nonne});
 }
 
 void ApplicationSolar::render() const {
-  // bind shader to upload uniforms
-  //planet sonne;
-  planet_container[0]->m_rot_speed = 20;
-  planet_container[0]->m_dis_org = 1.2;
-  planet_container[0]->m_size =1;
 
-  // bind shader to upload uniforms
-  //planet merkur;
-  planet_container[1]->m_rot_speed = 2;
-  planet_container[1]->m_dis_org = 0.2;
-  planet_container[1]->m_size =1;
 
   for (auto i : planet_container ) {
     upload_planet_transforms(*i);
