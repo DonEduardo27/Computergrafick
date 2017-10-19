@@ -25,22 +25,25 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 {
   initializeGeometry();
   initializeShaderPrograms();
+  loadPlanets();
 
-  std::shared_ptr<planet> p_sonne = std::make_shared<planet>(planet{1,2,3});
-  std::shared_ptr<planet> p_wonne = std::make_shared<planet>(planet{2,3,4});
-  std::shared_ptr<planet> p_tonne = std::make_shared<planet>(planet{3,4,5});
-  std::shared_ptr<planet> p_nonne = std::make_shared<planet>(planet{5,6,7});
+}
+void ApplicationSolar::loadPlanets()
+{
+  std::shared_ptr<planet> p_sonne = std::make_shared<planet>(planet{1,20,0});
+  std::shared_ptr<planet> p_wonne = std::make_shared<planet>(planet{2,3,40});
+  std::shared_ptr<planet> p_tonne = std::make_shared<planet>(planet{3,4,50});
+  std::shared_ptr<planet> p_nonne = std::make_shared<planet>(planet{5,6,70});
 
   planet_container.insert(std::end(planet_container), {p_sonne,p_wonne,p_tonne,p_nonne});
 }
 
-void ApplicationSolar::render() const {
-
-
-  for (auto i : planet_container ) {
+void ApplicationSolar::render() const
+{
+  for (auto i : planet_container )
+  {
     upload_planet_transforms(*i);
   }
-
 }
 
   void ApplicationSolar::upload_planet_transforms(planet Planet) const {
