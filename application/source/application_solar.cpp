@@ -31,7 +31,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   loadPlanets();
 
 }
-//Komentar
+
 void ApplicationSolar::loadPlanets()
 {
     std::string line;
