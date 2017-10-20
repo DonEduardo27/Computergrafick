@@ -126,12 +126,20 @@ void ApplicationSolar::uploadUniforms() {
 
 // handle key input
 void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) {
-  if (key == GLFW_KEY_W && action == GLFW_PRESS) {
-    m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, -0.1f});
+  if (key == GLFW_KEY_W) {
+    m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, -1.0f});
     updateView();
   }
-  else if (key == GLFW_KEY_S && action == GLFW_PRESS) {
-    m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, 0.1f});
+  else if (key == GLFW_KEY_S) {
+    m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, 1.0f});
+    updateView();
+  }
+  else if (key == GLFW_KEY_A) {
+    m_view_transform = glm::translate(m_view_transform, glm::fvec3{-1.0f, 0.0f, 0.0f});
+    updateView();
+  }
+  else if (key == GLFW_KEY_D) {
+    m_view_transform = glm::translate(m_view_transform, glm::fvec3{1.0f, 0.0f, 0.0f});
     updateView();
   }
 }
@@ -139,6 +147,10 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
 //handle delta mouse movement input
 void ApplicationSolar::mouseCallback(double pos_x, double pos_y) {
   // mouse handling
+  m_view_transform = glm::rotate(m_view_transform, float(pos_x)/100, glm::fvec3{0.0f, -1.0f, 0.0f});
+  m_view_transform = glm::translate(m_view_transform,glm::fvec3{0.0f, float(pos_y)/100, 0.0f});
+  // upload matrix to gpu
+  updateView();
 }
 
 // load shader programs
