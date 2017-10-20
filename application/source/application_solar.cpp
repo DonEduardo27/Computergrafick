@@ -56,7 +56,7 @@ void ApplicationSolar::loadPlanets()
       }
       myfile.close();
     }
-    else std::cout << "Unable to open file";
+    else std::cout << "Unable to load file"<< "\n";
 }
 
 void ApplicationSolar::render() const
