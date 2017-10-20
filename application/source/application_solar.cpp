@@ -34,7 +34,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 void ApplicationSolar::loadPlanets()
 {
     std::string line;
-    std::ifstream myfile("/home/eduardo/Schreibtisch/Computergrafik/planets.txt");
+    std::ifstream myfile("../../planets.txt");
 
     if (myfile.is_open())
     {
