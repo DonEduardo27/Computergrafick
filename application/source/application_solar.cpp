@@ -32,8 +32,13 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 
 }
 
+<<<<<<< HEAD
 //loads .txt with planet discription (Coputergrafick/planets.txt)
 void ApplicationSolar::loadPlanets() {
+=======
+void ApplicationSolar::loadPlanets()
+{
+>>>>>>> master
     std::string line;
     std::cout << "Es wir ../planets.txt genutzt" << "\n";
     std::ifstream myfile("../planets.txt");
