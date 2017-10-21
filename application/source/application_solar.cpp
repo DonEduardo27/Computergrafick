@@ -31,16 +31,15 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   loadPlanets();
 
 }
-//hi comentar
-void ApplicationSolar::loadPlanets()
-{
-    std::string line;
-    std::ifstream myfile("../../planets.txt");
 
-    if (myfile.is_open())
-    {
-      while ( getline (myfile,line) )
-      {
+//loads .txt with planet discription (Coputergrafick/planets.txt)
+void ApplicationSolar::loadPlanets() {
+    std::string line;
+    std::cout << "Es wir ../planets.txt genutzt" << "\n";
+    std::ifstream myfile("../planets.txt");
+
+    if (myfile.is_open()){
+      while ( getline (myfile,line) ){
         std::stringstream ss;
         ss<<line;
         float rot,size,dist,speed;
@@ -52,53 +51,62 @@ void ApplicationSolar::loadPlanets()
         ss>>rot;
         ss>>surrround;
 
-        std::shared_ptr<planet> new_planet = std::make_shared<planet>(planet{float(rot) ,float(size), float(speed),float(dist),surrround});
+        std::shared_ptr<planet> new_planet = std::make_shared<planet>(planet{float(rot) ,float(size), float(speed), float(dist), surrround});
         planet_container.push_back(new_planet);
       }
       myfile.close();
     }
-    else std::cout << "Unable to load file"<< "\n";
+    else {
+      std::cout << "----------------------------------------"<< "\n";
+      std::cout << "ERROR: Unable to load file"<< "\n";
+      std::cout << "Loading default objkts: Sun, Earth, Moon"<< "\n";
+      planet sonne{0.5, 5, 0, 0, 0}, earth{1, 1, 8, 10, 0}, moon{1, 0.2f, 8, 1.5f, 1};
+      auto sun = std::make_shared<planet> (sonne);
+      auto erde = std::make_shared<planet> (earth);
+      auto mond = std::make_shared<planet> (moon);
+      planet_container.insert(std::end(planet_container), {sun, erde, mond});
+    }
 }
 
-void ApplicationSolar::render() const
-{
-  for (auto i : planet_container )
-  {
+//draws all planets in planet container
+void ApplicationSolar::render() const {
+  for (auto i : planet_container ){
     upload_planet_transforms(*i);
   }
 }
 
-  void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
-    glUseProgram(m_shaders.at("planet").handle);
+//gives planets model and normal matrix
+void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
+  glUseProgram(m_shaders.at("planet").handle);
 
-    glm::fmat4 model_matrix;
+  glm::fmat4 model_matrix;
 
-    model_matrix = glm::rotate(glm::fmat4{}, (float(glfwGetTime())/2) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
+  model_matrix = glm::rotate(glm::fmat4{}, (float(glfwGetTime())/2) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
 
-    if(Planet.m_surroundet != 0)
-    {
-      model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * planet_container[Planet.m_surroundet]->m_dis_org});
-      model_matrix = glm::rotate(model_matrix, (float(glfwGetTime())/2) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
-    }
-
-    model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * Planet.m_dis_org});
-    glm::vec3 p_size {Planet.m_size,Planet.m_size,Planet.m_size};
-    model_matrix = glm::scale(model_matrix, p_size);
+  //if planet is not orbiting around the sun (origin)
+  if(Planet.m_surroundet != 0) {
     model_matrix = glm::rotate(model_matrix, (float(glfwGetTime())/2) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
-
-
-    glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
-
-    // extra matrix for normal transformation to keep them orthogonal to surface
-    glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
-
-    glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
-    // bind the VAO to draw
-    glBindVertexArray(planet_object.vertex_AO);
-
-    // draw bound vertex array using bound shader
-    glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
+    model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * planet_container[Planet.m_surroundet]->m_dis_org});
   }
+
+  model_matrix = glm::rotate(model_matrix, float(glfwGetTime()/2) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
+  model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * Planet.m_dis_org});
+  glm::vec3 p_size {Planet.m_size,Planet.m_size,Planet.m_size};
+  model_matrix = glm::scale(model_matrix, p_size);
+
+
+  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
+
+  // extra matrix for normal transformation to keep them orthogonal to surface
+  glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
+
+  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
+  // bind the VAO to draw
+  glBindVertexArray(planet_object.vertex_AO);
+
+  // draw bound vertex array using bound shader
+  glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
+}
 
 void ApplicationSolar::updateView() {
   // vertices are transformed in camera space, so camera transform must be inverted
@@ -125,7 +133,7 @@ void ApplicationSolar::uploadUniforms() {
   updateProjection();
 }
 
-// handle key input
+// handle key input W A S D
 void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) {
   if (key == GLFW_KEY_W) {
     m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, -1.0f});
@@ -145,7 +153,7 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
   }
 }
 
-//handle delta mouse movement input
+//handle delta mouse movement input, Y-axis not rotating but up/down movement
 void ApplicationSolar::mouseCallback(double pos_x, double pos_y) {
   // mouse handling
   m_view_transform = glm::rotate(m_view_transform, float(pos_x)/100, glm::fvec3{0.0f, -1.0f, 0.0f});
