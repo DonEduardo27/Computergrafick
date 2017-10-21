@@ -60,7 +60,7 @@ void ApplicationSolar::loadPlanets() {
       std::cout << "----------------------------------------"<< "\n";
       std::cout << "ERROR: Unable to load file"<< "\n";
       std::cout << "Loading default objkts: Sun, Earth, Moon"<< "\n";
-      planet sonne{0.5, 5, 0, 0, 0}, earth{1, 1, 8, 10, 0}, moon{1, 0.2f, 8, 1.5f, 1};
+      planet sonne{0.5, 8, 0, 0, 0}, earth{1, 1, 1.4f, 17, 0}, moon{1, 0.2f, 17, 1.5f, 1};
       auto sun = std::make_shared<planet> (sonne);
       auto erde = std::make_shared<planet> (earth);
       auto mond = std::make_shared<planet> (moon);
@@ -85,12 +85,12 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
 
   //if planet is not orbiting around the sun (origin)
   if(Planet.m_surroundet != 0) {
-    model_matrix = glm::rotate(model_matrix, (float(glfwGetTime())/2) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
     model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * planet_container[Planet.m_surroundet]->m_dis_org});
+    model_matrix = glm::rotate(model_matrix, (float(glfwGetTime())/2) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
   }
 
-  model_matrix = glm::rotate(model_matrix, float(glfwGetTime()/2) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
   model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * Planet.m_dis_org});
+  model_matrix = glm::rotate(model_matrix, float(glfwGetTime()/2) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
   glm::vec3 p_size {Planet.m_size,Planet.m_size,Planet.m_size};
   model_matrix = glm::scale(model_matrix, p_size);
 
