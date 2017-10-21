@@ -25,9 +25,9 @@ struct planet {
     m_surroundet{sorroundet}
   {}
 
-  float m_rot;      //self rotation
+  float m_rot;      //orbiting speed
   float m_size;     //diameter of a Planet
-  float m_speed;    //orbiting speed
+  float m_speed;    //self rotation
   float m_dis_org;  //Temperature on the Planet (distance from Centre)
   int m_surroundet; //orbit center as planet
 };
