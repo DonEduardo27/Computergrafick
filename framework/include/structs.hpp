@@ -7,30 +7,31 @@
 using namespace gl;
 
 struct planet {
+  //Default Constructor
   planet():
-  m_rot{1.0},
-  m_size{1.0},
-  m_speed{1.0},
-  m_dis_org{0.0},
-  m_surroundet{0}{}
+    m_rot{1.0},
+    m_size{1.0},
+    m_speed{1.0},
+    m_dis_org{0.0},
+    m_surroundet{0}
+  {}
 
+  //Constructor
   planet(float rot, float size, float speed, float dist, int sorroundet):
-  m_rot{rot},
-  m_size{size},
-  m_speed{speed},
-  m_dis_org{dist},
-  m_surroundet{sorroundet}{}
-  //Rotation um sich selbst
-  float m_rot;
-  //diameter of a Planet
-  float m_size;
-  //Length of a Year on this Planet
-  float m_speed;
-  //Temperature on the Planet (distance from Centre)
-  float m_dis_org;
-  //Nummer des Planeten, um den sich gedreht wird(to be improved)
-  int m_surroundet;
+    m_rot{rot},
+    m_size{size},
+    m_speed{speed},
+    m_dis_org{dist},
+    m_surroundet{sorroundet}
+  {}
+
+  float m_rot;      //orbiting speed
+  float m_size;     //diameter of a Planet
+  float m_speed;    //self rotation
+  float m_dis_org;  //Temperature on the Planet (distance from Centre)
+  int m_surroundet; //orbit center as planet
 };
+
 // gpu representation of model
 struct model_object {
   // vertex array object
