@@ -14,9 +14,9 @@ struct star {
     position{0.0, 0.0, 0.0},
     color{0.0,0.0,0.0}
   {
-    std::cout << position.x << "\n";
-    std::cout << position.y << "\n";
-    std::cout << position.z << "\n";
+    position.x = (float(rand() % 5000) / 5000);
+    position.y = (float(rand() % 5000) / 5000);
+    position.z = (float(rand() % 5000) / 5000);
   }
   glm::vec3 position {0.0, 0.0, 0.0};
   glm::vec3 color {0.0, 0.0, 0.0};
