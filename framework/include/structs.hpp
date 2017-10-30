@@ -3,8 +3,24 @@
 
 #include <map>
 #include <glbinding/gl/gl.h>
+#include <glm/vec3.hpp>
+#include <iostream>
 // use gl definitions from glbinding
 using namespace gl;
+
+struct star {
+
+  star():
+    position{0.0, 0.0, 0.0},
+    color{0.0,0.0,0.0}
+  {
+    std::cout << position.x << "\n";
+    std::cout << position.y << "\n";
+    std::cout << position.z << "\n";
+  }
+  glm::vec3 position {0.0, 0.0, 0.0};
+  glm::vec3 color {0.0, 0.0, 0.0};
+};
 
 struct planet {
   //Default Constructor
