@@ -38,11 +38,6 @@ void ApplicationSolar::loadPlanets() {
     std::cout << "Es wird ../planets.txt genutzt" << "\n";
     std::ifstream myfile("../planets.txt");
 
-    star g;
-    star q;
-    star w;
-    star t;
-
     if (myfile.is_open()){
       while ( getline (myfile,line) ){
         std::stringstream ss;
@@ -185,6 +180,7 @@ void ApplicationSolar::initializeGeometry() {
 
   // generate vertex array object
   glGenVertexArrays(1, &planet_object.vertex_AO);
+
   // bind the array for attaching buffers
   glBindVertexArray(planet_object.vertex_AO);
 

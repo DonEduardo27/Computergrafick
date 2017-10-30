@@ -38,8 +38,10 @@ class ApplicationSolar : public Application {
 
   // cpu representation of model
   model_object planet_object;
+  model_object star_object;
   //Vector with all smartpointers asigned for every planet
   std::vector<std::shared_ptr<planet>> planet_container;
+  std::vector<std::shared_ptr<star>> star_container;
 };
 
 #endif
