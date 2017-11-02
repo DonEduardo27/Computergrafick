@@ -28,7 +28,7 @@ class ApplicationSolar : public Application {
   // does the Matrix multiplication
   void upload_planet_transforms(planet const& Planet) const;
 
-  void du_wirst_sehen_stars(star const& Star) const;
+  void du_wirst_sehen_stars() const;
 
   // draw all objects
   void render() const;
