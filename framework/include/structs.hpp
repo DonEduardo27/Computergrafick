@@ -9,7 +9,6 @@
 using namespace gl;
 
 struct star {
-
   star():
     position{0.0, 0.0, 0.0},
     color{0.0,0.0,0.0}
