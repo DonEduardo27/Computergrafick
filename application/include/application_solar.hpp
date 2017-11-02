@@ -27,6 +27,7 @@ class ApplicationSolar : public Application {
   void mouseCallback(double pos_x, double pos_y);
   // does the Matrix multiplication
   void upload_planet_transforms(planet const& Planet) const;
+
   void du_wirst_sehen_stars(star const& Star) const;
 
   // draw all objects
