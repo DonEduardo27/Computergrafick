@@ -11,11 +11,11 @@ using namespace gl;
 struct star {
   star():
     position{0.0, 0.0, 0.0},
-    color{0.0,0.0,0.0}
+    color{1.0,1.0,1.0}
     {
-      position.x = (float(rand() % 5000) / 5000);
-      position.y = (float(rand() % 5000) / 5000);
-      position.z = (float(rand() % 5000) / 5000);
+      position.x = float(rand());
+      position.y = float(rand());
+      position.z = float(rand());
     }
   glm::vec3 position {0.0, 0.0, 0.0};
   glm::vec3 color {1.0, 1.0, 1.0};

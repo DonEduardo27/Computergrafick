@@ -44,7 +44,8 @@ class ApplicationSolar : public Application {
   model_object star_object;
   //Vector with all smartpointers asigned for every planet
   std::vector<std::shared_ptr<planet>> planet_container;
-  std::vector<std::shared_ptr<star>> star_container;
+  //std::vector<std::shared_ptr<float>> star_container;
+  std::vector<float> star_container;
 };
 
 #endif

@@ -237,9 +237,8 @@ void ApplicationSolar::initializeGeometry() {
 // load stars
 void ApplicationSolar::initializeStars(){
 
-  for(int i=0; i<1000000; i++){
-    std::shared_ptr<star> new_star = std::make_shared<star>(star());
-    star_container.push_back(new_star);
+  for(int i=0; i<6*10000; i++){
+    star_container.push_back(static_cast <float>(rand()%200)-100);
   }
 
   // generate vertex array object
@@ -255,11 +254,11 @@ void ApplicationSolar::initializeStars(){
   // activate first attribute on gpu
   glEnableVertexAttribArray(0);
   // first attribute is 3 floats with no offset & stride
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2, (void*) 0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*) 0);
   // activate second attribute on gpu
   glEnableVertexAttribArray(1);
   // second attribute is 3 floats with no offset & stride
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 2, (void*) 1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*) 3);
    // generate generic buffer
   glGenBuffers(1, &star_object.element_BO);
   // bind this as an vertex array buffer containing all attributes
