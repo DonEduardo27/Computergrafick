@@ -118,7 +118,7 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
 }
 
 void ApplicationSolar::du_wirst_sehen_stars() const {
-  glUseProgram(m_shaders.at("stars").handle);
+  //glUseProgram(m_shaders.at("stars").handle);
   glBindVertexArray(star_object.vertex_AO);
 
   // draw bound vertex array using bound shader
@@ -188,11 +188,12 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.emplace("planet", shader_program{m_resource_path + "shaders/simple.vert",
                                            m_resource_path + "shaders/simple.frag"});
 
-  // request uniform locations for shader program
   m_shaders.emplace("stars", shader_program{m_resource_path + "shaders/star.vert",
                                            m_resource_path + "shaders/star.frag"});
 
-  // request uniform locations for shader program
+  /*m_shaders.emplace("rings", shader_program{m_resource_path + "shaders/ring.vert",
+                                           m_resource_path + "shaders/ring.frag"});
+*/
   m_shaders.at("planet").u_locs["NormalMatrix"] = -1;
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
@@ -200,6 +201,10 @@ void ApplicationSolar::initializeShaderPrograms() {
 
   m_shaders.at("stars").u_locs["ViewMatrix"] = -1;
   m_shaders.at("stars").u_locs["ProjectionMatrix"] = -1;
+
+  /*m_shaders.at("rings").u_locs["ViewMatrix"] = -1;
+  m_shaders.at("rings").u_locs["ModelMatrix"] = -1; //rings need to be transformed
+  m_shaders.at("rings").u_locs["ProjectionMatrix"] = -1;*/
 }
 
 // load models
