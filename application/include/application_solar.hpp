@@ -37,11 +37,13 @@ class ApplicationSolar : public Application {
   void initializeShaderPrograms();
   void initializeGeometry();
   void initializeStars();
+  void initializeRings();
   void updateView();
 
   // cpu representation of model
   model_object planet_object;
   model_object star_object;
+  model_object ring_object;
   //Vector with all smartpointers asigned for every planet
   std::vector<std::shared_ptr<planet>> planet_container;
   //std::vector<std::shared_ptr<float>> star_container;

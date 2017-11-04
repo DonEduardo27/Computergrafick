@@ -29,6 +29,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   loadPlanets();
   initializeGeometry();
   initializeStars();
+  initializeRings();
   initializeShaderPrograms();
 
 }
@@ -241,32 +242,43 @@ void ApplicationSolar::initializeStars(){
     star_container.push_back(static_cast <float>(rand()%200)-100);
   }
 
-  // generate vertex array object
   glGenVertexArrays(1, &star_object.vertex_AO);
-  // bind the array for attaching buffers
   glBindVertexArray(star_object.vertex_AO);
-  // generate generic buffer
   glGenBuffers(1, &star_object.vertex_BO);
-  // bind this as an vertex array buffer containing all attributes
   glBindBuffer(GL_ARRAY_BUFFER, star_object.vertex_BO);
-  // configure currently bound array buffer
   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * star_container.size(), star_container.data(), GL_STATIC_DRAW);
-  // activate first attribute on gpu
   glEnableVertexAttribArray(0);
-  // first attribute is 3 floats with no offset & stride
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*) 0);
-  // activate second attribute on gpu
   glEnableVertexAttribArray(1);
-  // second attribute is 3 floats with no offset & stride
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*) 3);
-   // generate generic buffer
   glGenBuffers(1, &star_object.element_BO);
-  // bind this as an vertex array buffer containing all attributes
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, star_object.element_BO);
-  // store type of primitive to draw
   star_object.draw_mode = GL_POINTS;
-  // transfer number of indices to model object
   star_object.num_elements = GLsizei(star_container.size());
+}
+void ApplicationSolar::initializeRings()
+{
+  std::vector<glm::vec4> ringPoints;
+  for (unsigned i = 0; i < 100; i++)
+  {
+    float tempx,tempy;
+    tempx = float(sin( ((2.0 * M_PI) / 10.0) * float(i) ) );
+    tempy = float(cos( ((2.0 * M_PI) / 10.0) * float(i) ) );
+    ringPoints.push_back(glm::vec4(tempx,tempy,0,1));
+  }
+  glGenVertexArrays(1, &ring_object.vertex_AO);
+  glBindVertexArray(ring_object.vertex_AO);
+  glGenBuffers(1, &ring_object.vertex_BO);
+  glBindBuffer(GL_ARRAY_BUFFER, ring_object.vertex_BO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ringPoints.size(), ringPoints.data(), GL_STATIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*) 0);
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*) 3);
+  glGenBuffers(1, &ring_object.element_BO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ring_object.element_BO);
+  ring_object.draw_mode = GL_LINE_LOOP;
+  ring_object.num_elements = GLsizei(ringPoints.size());
 }
 
 // deconstructor
