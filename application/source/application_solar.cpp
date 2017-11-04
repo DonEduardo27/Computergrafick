@@ -75,10 +75,9 @@ void ApplicationSolar::render() const {
 
   for (auto i : planet_container ){
     upload_planet_transforms(*i);
+    do_Rings();
   }
   du_wirst_sehen_stars();
-
-  do_Rings();
 }
 
 //gives planets model and normal matrix
@@ -124,12 +123,23 @@ void ApplicationSolar::du_wirst_sehen_stars() const
   glPointSize(4);
   glDrawArrays(star_object.draw_mode, 0, (int)star_container.size());
 }
-void ApplicationSolar::do_Rings() const {
+void ApplicationSolar::do_Rings() const
+{
+//  glUseProgram(m_shaders.at("ring").handle);
+
+  glm::fmat4 model_matrix = {1,0,0,0,
+                            0,1,0,0,
+                            0,0,1,0,
+                            0,0,0,1};
+
+  //glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
+  //glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
+  //glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
+
+
   glBindVertexArray(ring_object.vertex_AO);
 
-  // draw bound vertex array using bound shader
-  //glPointSize(4);
-  glDrawArrays(ring_object.draw_mode, 0, 100);
+  glDrawArrays(ring_object.draw_mode, 0, 400);
 }
 
 
@@ -142,6 +152,9 @@ void ApplicationSolar::updateView() {
 
   glUseProgram(m_shaders.at("stars").handle);
   glUniformMatrix4fv(m_shaders.at("stars").u_locs.at("ViewMatrix"),  1, GL_FALSE, glm::value_ptr(view_matrix));
+
+  glUseProgram(m_shaders.at("ring").handle);
+  glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("ViewMatrix"),  1, GL_FALSE, glm::value_ptr(view_matrix));
 }
 
 void ApplicationSolar::updateProjection() {
@@ -151,6 +164,10 @@ void ApplicationSolar::updateProjection() {
 
   glUseProgram(m_shaders.at("stars").handle);
   glUniformMatrix4fv(m_shaders.at("stars").u_locs.at("ProjectionMatrix"),  1, GL_FALSE, glm::value_ptr(m_view_projection));
+
+  glUseProgram(m_shaders.at("ring").handle);
+  glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("ProjectionMatrix"),  1, GL_FALSE, glm::value_ptr(m_view_projection));
+
 }
 
 // update uniform locations
@@ -198,9 +215,9 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.emplace("stars", shader_program{m_resource_path + "shaders/star.vert",
                                            m_resource_path + "shaders/star.frag"});
 
-  /*m_shaders.emplace("rings", shader_program{m_resource_path + "shaders/ring.vert",
+  m_shaders.emplace("ring", shader_program{m_resource_path + "shaders/ring.vert",
                                            m_resource_path + "shaders/ring.frag"});
-*/
+
   m_shaders.at("planet").u_locs["NormalMatrix"] = -1;
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
@@ -209,9 +226,9 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("stars").u_locs["ViewMatrix"] = -1;
   m_shaders.at("stars").u_locs["ProjectionMatrix"] = -1;
 
-  /*m_shaders.at("rings").u_locs["ViewMatrix"] = -1;
-  m_shaders.at("rings").u_locs["ModelMatrix"] = -1; //rings need to be transformed
-  m_shaders.at("rings").u_locs["ProjectionMatrix"] = -1;*/
+  m_shaders.at("ring").u_locs["ViewMatrix"] = -1;
+  m_shaders.at("ring").u_locs["ModelMatrix"] = -1; //ring need to be transformed
+  m_shaders.at("ring").u_locs["ProjectionMatrix"] = -1;
 }
 
 // load models
@@ -270,30 +287,30 @@ void ApplicationSolar::initializeStars(){
 }
 void ApplicationSolar::initializeRings()
 {
-  std::vector<glm::vec4> ringPoints;
-  for (unsigned i = 0; i < 400; i++)
-  {
-    float tempx,tempy;
-    tempx = float(sin( ((2.0 * M_PI) / 100.0) * float(i) ) );
-    tempy = float(cos( ((2.0 * M_PI) / 100.0) * float(i) ) );
+    std::vector<glm::vec4> ringPoints;
 
-    std::cout<<"x: "<<tempx<<"y: "<<tempy<<std::endl;
+    for (unsigned i = 0; i < 400; i++)
+    {
+      float tempx,tempy;
+      tempx = float(sin( ((2.0 * M_PI) / 100.0) * float(i) ) );
+      tempy = float(cos( ((2.0 * M_PI) / 100.0) * float(i) ) );
 
-    ringPoints.push_back(glm::vec4(tempx,tempy,0,1));
-  }
-  glGenVertexArrays(1, &ring_object.vertex_AO);
-  glBindVertexArray(ring_object.vertex_AO);
-  glGenBuffers(1, &ring_object.vertex_BO);
-  glBindBuffer(GL_ARRAY_BUFFER, ring_object.vertex_BO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ringPoints.size(), ringPoints.data(), GL_STATIC_DRAW);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*) 0);
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*) 4);
-  glGenBuffers(1, &ring_object.element_BO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ring_object.element_BO);
-  ring_object.draw_mode = GL_LINE_LOOP;
-  ring_object.num_elements = GLsizei(ringPoints.size());
+      ringPoints.push_back(glm::vec4(tempx,0,tempy,1));
+    }
+
+    glGenVertexArrays(1, &ring_object.vertex_AO);
+    glBindVertexArray(ring_object.vertex_AO);
+    glGenBuffers(1, &ring_object.vertex_BO);
+    glBindBuffer(GL_ARRAY_BUFFER, ring_object.vertex_BO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ringPoints.size(), ringPoints.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*) 0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*) 3);
+    glGenBuffers(1, &ring_object.element_BO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ring_object.element_BO);
+    ring_object.draw_mode = GL_LINE_LOOP;
+    ring_object.num_elements = GLsizei(ringPoints.size());
 }
 
 // deconstructor
