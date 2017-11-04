@@ -30,6 +30,8 @@ class ApplicationSolar : public Application {
 
   void du_wirst_sehen_stars() const;
 
+  void do_Rings() const;
+
   // draw all objects
   void render() const;
 
