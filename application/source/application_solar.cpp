@@ -75,7 +75,7 @@ void ApplicationSolar::render() const {
 
   for (auto i : planet_container ){
     upload_planet_transforms(*i);
-    do_Rings();
+    do_Rings(*i);
   }
   du_wirst_sehen_stars();
 }
@@ -123,19 +123,21 @@ void ApplicationSolar::du_wirst_sehen_stars() const
   glPointSize(1.0);
   glDrawArrays(star_object.draw_mode, 0, (int)star_container.size());
 }
-void ApplicationSolar::do_Rings() const
+
+void ApplicationSolar::do_Rings(planet const& Planet) const
 {
-//  glUseProgram(m_shaders.at("ring").handle);
+  glUseProgram(m_shaders.at("ring").handle);
 
   glm::fmat4 model_matrix = {1,0,0,0,
                             0,1,0,0,
                             0,0,1,0,
                             0,0,0,1};
 
-  //glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
+  glm::vec3 scale_dir{Planet.m_dis_org,0,Planet.m_dis_org};
+  model_matrix = glm::scale(model_matrix, scale_dir);
+  glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
   //glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
   //glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
-
 
   glBindVertexArray(ring_object.vertex_AO);
 
@@ -227,7 +229,7 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("stars").u_locs["ProjectionMatrix"] = -1;
 
   m_shaders.at("ring").u_locs["ViewMatrix"] = -1;
-  m_shaders.at("ring").u_locs["ModelMatrix"] = -1; //ring need to be transformed
+  m_shaders.at("ring").u_locs["ModelMatrix"] = -1; //1 ring need to be transformed
   m_shaders.at("ring").u_locs["ProjectionMatrix"] = -1;
 }
 
@@ -285,8 +287,9 @@ void ApplicationSolar::initializeStars(){
   star_object.draw_mode = GL_POINTS;
   star_object.num_elements = GLsizei(star_container.size());
 }
-void ApplicationSolar::initializeRings()
-{
+
+// load Orbit Rings
+void ApplicationSolar::initializeRings(){
     std::vector<glm::vec4> ringPoints;
 
     for (unsigned i = 0; i < 400; i++)
@@ -322,6 +325,10 @@ ApplicationSolar::~ApplicationSolar() {
   glDeleteBuffers(1, &star_object.vertex_BO);
   glDeleteBuffers(1, &star_object.element_BO);
   glDeleteVertexArrays(1, &star_object.vertex_AO);
+
+  glDeleteBuffers(1, &ring_object.vertex_BO);
+  glDeleteBuffers(1, &ring_object.element_BO);
+  glDeleteVertexArrays(1, &ring_object.vertex_AO);
 }
 
 // exe entry point
