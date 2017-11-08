@@ -303,8 +303,6 @@ void ApplicationSolar::initializeRings(){
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ringPoints.size(), ringPoints.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*) 0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*) 3);
     glGenBuffers(1, &ring_object.element_BO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ring_object.element_BO);
     ring_object.draw_mode = GL_LINE_LOOP;
