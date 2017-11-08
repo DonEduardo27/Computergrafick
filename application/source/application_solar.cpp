@@ -25,7 +25,7 @@ using namespace gl;
 ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  :Application{resource_path}
  ,planet_object{}
-{
+ {
   loadPlanets();
   initializeGeometry();
   initializeStars();
@@ -70,7 +70,7 @@ void ApplicationSolar::loadPlanets() {
     }
 }
 
-//draws all planets in planet container
+//draws all planets in planet container, rings and stars
 void ApplicationSolar::render() const {
 
   for (auto i : planet_container ){
@@ -114,36 +114,32 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
   glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
 }
 
-void ApplicationSolar::du_wirst_sehen_stars() const
-{
+// do stars
+void ApplicationSolar::du_wirst_sehen_stars() const{
   glUseProgram(m_shaders.at("stars").handle);
   glBindVertexArray(star_object.vertex_AO);
 
   // draw bound vertex array using bound shader
-  glPointSize(1.0);
+  glPointSize(3.0);
   glDrawArrays(star_object.draw_mode, 0, (int)star_container.size());
 }
 
-void ApplicationSolar::do_Rings(planet const& Planet) const
-{
+// assigne ModelMatrix to Orbit rings
+void ApplicationSolar::do_Rings(planet const& Planet) const{
   glUseProgram(m_shaders.at("ring").handle);
 
-  glm::fmat4 model_matrix = {1,0,0,0,
-                            0,1,0,0,
-                            0,0,1,0,
-                            0,0,0,1};
-
+  glm::fmat4 model_matrix;
+  if(Planet.m_surroundet != 0) {
+    model_matrix = glm::rotate(model_matrix, (float(glfwGetTime())/2) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
+    model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * planet_container[Planet.m_surroundet]->m_dis_org});
+  }
   glm::vec3 scale_dir{Planet.m_dis_org,0,Planet.m_dis_org};
   model_matrix = glm::scale(model_matrix, scale_dir);
+
   glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
-  //glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
-  //glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
-
   glBindVertexArray(ring_object.vertex_AO);
-
   glDrawArrays(ring_object.draw_mode, 0, 400);
 }
-
 
 void ApplicationSolar::updateView() {
   // vertices are transformed in camera space, so camera transform must be inverted
@@ -292,12 +288,11 @@ void ApplicationSolar::initializeStars(){
 void ApplicationSolar::initializeRings(){
     std::vector<glm::vec4> ringPoints;
 
-    for (unsigned i = 0; i < 400; i++)
+    for (unsigned i = 0; i < 410; i++)
     {
       float tempx,tempy;
       tempx = float(sin( ((2.0 * M_PI) / 100.0) * float(i) ) );
       tempy = float(cos( ((2.0 * M_PI) / 100.0) * float(i) ) );
-
       ringPoints.push_back(glm::vec4(tempx,0,tempy,1));
     }
 
