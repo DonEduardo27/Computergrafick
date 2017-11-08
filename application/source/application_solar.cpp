@@ -121,7 +121,7 @@ void ApplicationSolar::du_wirst_sehen_stars() const {
   glBindVertexArray(star_object.vertex_AO);
 
   // draw bound vertex array using bound shader
-  glPointSize(4);
+  glPointSize(1.0);
   glDrawArrays(star_object.draw_mode, 0, (int)star_container.size());
 }
 
@@ -238,7 +238,7 @@ void ApplicationSolar::initializeGeometry() {
 void ApplicationSolar::initializeStars(){
 
   for(int i=0; i<6*10000; i++){
-    star_container.push_back(static_cast <float>(rand()%200)-100);
+    star_container.push_back((float)(rand()%500)-250);
   }
 
   // generate vertex array object
