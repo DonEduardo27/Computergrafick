@@ -138,7 +138,7 @@ void ApplicationSolar::do_Rings(planet const& Planet) const{
 
   glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
   glBindVertexArray(ring_object.vertex_AO);
-  glDrawArrays(ring_object.draw_mode, 0, 400);
+  glDrawArrays(ring_object.draw_mode, 0, 361); //genauer hinschaun
 }
 
 void ApplicationSolar::updateView() {
@@ -286,14 +286,11 @@ void ApplicationSolar::initializeStars(){
 
 // load Orbit Rings
 void ApplicationSolar::initializeRings(){
-    std::vector<glm::vec4> ringPoints;
-
-    for (unsigned i = 0; i < 410; i++)
-    {
-      float tempx,tempy;
-      tempx = float(sin( ((2.0 * M_PI) / 100.0) * float(i) ) );
-      tempy = float(cos( ((2.0 * M_PI) / 100.0) * float(i) ) );
-      ringPoints.push_back(glm::vec4(tempx,0,tempy,1));
+    std::vector<float> ringPoints;
+    for (unsigned i = 0; i < 361; i++){
+      ringPoints.push_back((float)cos((i * M_PI)/180));
+      ringPoints.push_back(0.0);
+      ringPoints.push_back((float)-sin((i * M_PI)/180));
     }
 
     glGenVertexArrays(1, &ring_object.vertex_AO);
@@ -302,11 +299,11 @@ void ApplicationSolar::initializeRings(){
     glBindBuffer(GL_ARRAY_BUFFER, ring_object.vertex_BO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ringPoints.size(), ringPoints.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
     glGenBuffers(1, &ring_object.element_BO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ring_object.element_BO);
     ring_object.draw_mode = GL_LINE_LOOP;
-    ring_object.num_elements = GLsizei(ringPoints.size());
+    ring_object.num_elements = GLsizei(ringPoints.size()/3);
 }
 
 // deconstructor
