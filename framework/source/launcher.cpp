@@ -32,8 +32,8 @@ void watch_gl_errors(bool activate = true);
 
 Launcher::Launcher(int argc, char* argv[]) 
  :m_camera_fov{glm::radians(60.0f)}
- ,m_window_width{640u}
- ,m_window_height{480u}
+ ,m_window_width{1920u}
+ ,m_window_height{1080u}
  ,m_window{nullptr}
  ,m_last_second_time{0.0}
  ,m_frames_per_second{0u}
@@ -155,7 +155,7 @@ void Launcher::update_projection(GLFWwindow* m_window, int width, int height) {
     fov_y = 2.0f * glm::atan(glm::tan(m_camera_fov * 0.5f) * (1.0f / aspect));
   }
   // projection is hor+ 
-  glm::fmat4 camera_projection = glm::perspective(fov_y, aspect, 0.1f, 100.0f);
+  glm::fmat4 camera_projection = glm::perspective(fov_y, aspect, 0.1f, 1000.0f);
   // upload matrix to gpu
   m_application->setProjection(camera_projection);
 }
