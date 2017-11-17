@@ -9,17 +9,19 @@ uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
 uniform mat4 NormalMatrix;
+//uniform vec3 Color;
 
 out vec3 pass_Normal;
 out vec3 vert_pos;
-//out vec3 camera_pos;
+out vec3 camera_pos;
 
 void main(void)
 {
 	gl_Position = (ProjectionMatrix  * ViewMatrix * ModelMatrix) * vec4(in_Position, 1.0);
+
 	//inverse Matrix Extraction
-	//mat4 viewModel = inverse(ViewMatrix);
-	//camera_pos = viewModel[3].xyz;
+	mat4 viewModel = inverse(ViewMatrix);
+	camera_pos = viewModel[3].xyz;
 
 	//transform vertex position
 	vec4 vertPos4 = ModelMatrix * vec4(in_Position, 1.0);

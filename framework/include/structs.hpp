@@ -28,17 +28,18 @@ struct planet {
     m_size{1.0},
     m_speed{1.0},
     m_dis_org{0.0},
-    m_surroundet{0}//,
-    //glm::vec3 m_color{0,0,0}
+    m_surroundet{0},
+    m_color{0,0,0}
   {}
 
   //Constructor
-  planet(float rot, float size, float speed, float dist, int sorroundet):
+  planet(float rot, float size, float speed, float dist, int sorroundet, glm::vec3 color):
     m_rot{rot},
     m_size{size},
     m_speed{speed},
     m_dis_org{dist},
-    m_surroundet{sorroundet}
+    m_surroundet{sorroundet},
+    m_color{color}
   {}
 
   float m_rot;      //orbiting speed
@@ -46,6 +47,7 @@ struct planet {
   float m_speed;    //self rotation
   float m_dis_org;  //Temperature on the Planet (distance from Centre)
   int m_surroundet; //orbit center as planet
+  glm::vec3 m_color;
 };
 
 // gpu representation of model

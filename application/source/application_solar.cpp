@@ -46,14 +46,18 @@ void ApplicationSolar::loadPlanets() {
         ss<<line;
         float rot,size,dist,speed;
         int surrround;
+        glm::vec3 color;
 
         ss>>size;
         ss>>speed;
         ss>>dist;
         ss>>rot;
         ss>>surrround;
+        ss>>color.x;
+        ss>>color.y;
+        ss>>color.z;
 
-        std::shared_ptr<planet> new_planet = std::make_shared<planet>(planet{float(rot) ,float(size), float(speed), float(dist), surrround});
+        std::shared_ptr<planet> new_planet = std::make_shared<planet>(planet{float(rot) ,float(size), float(speed), float(dist), int(surrround), color});
         planet_container.push_back(new_planet);
       }
       myfile.close();
@@ -62,7 +66,8 @@ void ApplicationSolar::loadPlanets() {
       std::cout << "----------------------------------------"<< "\n";
       std::cout << "ERROR: Unable to load file"<< "\n";
       std::cout << "Loading default objkts: Sun, Earth, Moon"<< "\n";
-      planet sonne{0.5, 8, 0, 0, 0}, earth{1, 1, 1.4f, 17, 0}, moon{1, 0.2f, 17, 1.5f, 1};
+      glm::vec3 color{255, 255, 255};
+      planet sonne{0.5, 8, 0, 0, 0, color}, earth{1, 1, 1.4f, 17, 0, color}, moon{1, 0.2f, 17, 1.5f, 1, color};
       auto sun = std::make_shared<planet> (sonne);
       auto erde = std::make_shared<planet> (earth);
       auto mond = std::make_shared<planet> (moon);
@@ -88,6 +93,12 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     glUseProgram(m_shaders.at("sun").handle);
 
     glm::fmat4 model_matrix;
+    float r = Planet.m_color.x;
+    float g = Planet.m_color.y;
+    float b = Planet.m_color.z;
+    glUniform3f(m_shaders.at("planet").u_locs.at("Color"),r,g,b);
+
+
     model_matrix = glm::rotate(glm::fmat4{}, (float(glfwGetTime())/2) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
     model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * Planet.m_dis_org});
     model_matrix = glm::rotate(model_matrix, float(glfwGetTime()/2) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
@@ -109,6 +120,11 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     glUseProgram(m_shaders.at("planet").handle);
 
     glm::fmat4 model_matrix;
+    float r = Planet.m_color.x;
+    float g = Planet.m_color.y;
+    float b = Planet.m_color.z;
+    glUniform3f(m_shaders.at("planet").u_locs.at("Color"),r,g,b);
+
     model_matrix = glm::rotate(glm::fmat4{}, (float(glfwGetTime())/2) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
 
     //if planet is not orbiting around the sun (origin)
@@ -122,12 +138,10 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     glm::vec3 p_size {Planet.m_size,Planet.m_size,Planet.m_size};
     model_matrix = glm::scale(model_matrix, p_size);
 
-
     glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
 
     // extra matrix for normal transformation to keep them orthogonal to surface
     glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
-
     glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
 
     // bind the VAO to draw

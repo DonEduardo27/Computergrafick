@@ -3,12 +3,12 @@
 
 in  vec3 pass_Normal;
 in  vec3 vert_pos;
-//in  vec3 camera_pos;
+in  vec3 camera_pos;
 out vec4 out_Color;
 
 const vec3 light_pos = vec3(0, 0, 0);
-const vec3 ambient_color = vec3 (0.1, 0, 0);
-const vec3 diffuse_color = vec3 (0.5, 0, 0);
+const vec3 ambient_color = vec3(0.1, 0, 0);
+const vec3 diffuse_color = vec3(0.5, 0, 0);
 const vec3 spec_color = vec3 (1, 1, 1);
 const float shininess = 8.0;
 const float screenGamma = 2.2;
