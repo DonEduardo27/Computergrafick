@@ -12,6 +12,7 @@ uniform mat4 NormalMatrix;
 
 out vec3 pass_Normal;
 out vec3 vert_pos;
+out mat4 View_Matrix;
 //out vec3 camera_pos;
 
 void main(void)
@@ -25,7 +26,9 @@ void main(void)
 	vec4 vertPos4 = ModelMatrix * vec4(in_Position, 1.0);
 	vert_pos = vec3(vertPos4) / vertPos4.w;
 
+	View_Matrix = ViewMatrix;
+
 	//transform normal otientation
-	pass_Normal = vec3(NormalMatrix * vec4(in_Normal, 0.0));
+	pass_Normal = vec3(NormalMatrix * vec4(in_Normal, 0.0)).xyz;
 
 }
