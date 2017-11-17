@@ -28,7 +28,8 @@ struct planet {
     m_size{1.0},
     m_speed{1.0},
     m_dis_org{0.0},
-    m_surroundet{0}
+    m_surroundet{0}//,
+    //glm::vec3 m_color{0,0,0}
   {}
 
   //Constructor

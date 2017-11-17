@@ -86,7 +86,7 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
   if(Planet.m_dis_org == 0){
 
     glUseProgram(m_shaders.at("sun").handle);
-    
+
     glm::fmat4 model_matrix;
     model_matrix = glm::rotate(glm::fmat4{}, (float(glfwGetTime())/2) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
     model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * Planet.m_dis_org});
@@ -96,7 +96,7 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
 
 
     glUniformMatrix4fv(m_shaders.at("sun").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
- 
+
     // bind the VAO to draw
     glBindVertexArray(planet_object.vertex_AO);
 
@@ -107,7 +107,7 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
   else{
 
     glUseProgram(m_shaders.at("planet").handle);
-    
+
     glm::fmat4 model_matrix;
     model_matrix = glm::rotate(glm::fmat4{}, (float(glfwGetTime())/2) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
 
@@ -139,17 +139,17 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
 }
 
 // do stars
-void ApplicationSolar::du_wirst_sehen_stars() const{
+void ApplicationSolar::du_wirst_sehen_stars() const {
   glUseProgram(m_shaders.at("stars").handle);
   glBindVertexArray(star_object.vertex_AO);
 
   // draw bound vertex array using bound shader
-  glPointSize(3.0);
+  glPointSize(2.0);
   glDrawArrays(star_object.draw_mode, 0, (int)star_container.size());
 }
 
 // assigne ModelMatrix to Orbit rings
-void ApplicationSolar::do_Rings(planet const& Planet) const{
+void ApplicationSolar::do_Rings(planet const& Planet) const {
   glUseProgram(m_shaders.at("ring").handle);
 
   glm::fmat4 model_matrix;
@@ -171,7 +171,7 @@ void ApplicationSolar::updateView() {
   // upload matrix to gpu
   glUseProgram(m_shaders.at("planet").handle);
   glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"), 1, GL_FALSE, glm::value_ptr(view_matrix));
-  
+
   glUseProgram(m_shaders.at("sun").handle);
   glUniformMatrix4fv(m_shaders.at("sun").u_locs.at("ViewMatrix"), 1, GL_FALSE, glm::value_ptr(view_matrix));
 
@@ -299,7 +299,7 @@ void ApplicationSolar::initializeGeometry() {
 }
 
 // load stars
-void ApplicationSolar::initializeStars(){
+void ApplicationSolar::initializeStars() {
 
   for(int i=0; i<6*10000; i++){
     star_container.push_back((float)(rand()%500)-250);
@@ -321,7 +321,7 @@ void ApplicationSolar::initializeStars(){
 }
 
 // load Orbit Rings
-void ApplicationSolar::initializeRings(){
+void ApplicationSolar::initializeRings() {
     std::vector<float> ringPoints;
     for (unsigned i = 0; i < 361; i++){
       ringPoints.push_back((float)cos((i * M_PI)/180));
