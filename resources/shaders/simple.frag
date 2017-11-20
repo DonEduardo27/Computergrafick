@@ -1,6 +1,7 @@
 #version 150
 
 in  vec3 pass_Normal;
+in  vec3 pass_Color;
 in  vec3 vert_pos;
 in  vec3 vert_pos_world;
 out vec4 out_Color;
@@ -16,7 +17,7 @@ void main() {
   vec3 normal = normalize(pass_Normal); //Length of normal is 1
 
   vec3 light_dir = normalize(  (vec4(light_pos - vert_pos_world, 0.0)).xyz);  //calculating direction light comes from(important for specular)
-  vec3 view_dir  = normalize( -(vec4(vert_pos_world, 0.0)).xyz);  //calculating direction form where we look on (important for diffuse)
+  vec3 view_dir  = normalize( -(vec4(vert_pos_world, 0.0)).xyz);              //calculating direction form where we look on (important for diffuse)
 
   float diffuse = max(dot(light_dir, normal),0.0);
   float specular = 0.0;

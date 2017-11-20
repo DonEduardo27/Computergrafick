@@ -40,7 +40,16 @@ struct planet {
     m_dis_org{dist},
     m_surroundet{sorroundet},
     m_color{color}
-  {}
+  {
+    norm_color();
+  }
+
+  // Normalize color (0-255 -> 0-1)
+  void norm_color() {
+    m_color.x =  m_color.x / 255;
+    m_color.y =  m_color.y / 255;
+    m_color.z =  m_color.z / 255;
+  }
 
   float m_rot;      //orbiting speed
   float m_size;     //diameter of a Planet

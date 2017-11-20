@@ -93,10 +93,13 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     glUseProgram(m_shaders.at("sun").handle);
 
     glm::fmat4 model_matrix;
-    // float r = Planet.m_color.x;
-    // float g = Planet.m_color.y;
-    // float b = Planet.m_color.z;
-    // glUniform3f(m_shaders.at("planet").u_locs.at("Color"),r,g,b);
+    // std::cout << Planet.m_color.x << ", " << Planet.m_color.y << ", " << Planet.m_color.z << std::endl;
+    // glm::vec3 colors {1,1,1};
+    float r = Planet.m_color.x;
+    float g = Planet.m_color.y;
+    float b = Planet.m_color.z;
+    glUniform3f(m_shaders.at("sun").u_locs.at("ColorVec3"), r, g, b);
+    // glUniform3fv(m_shaders.at("planet").u_locs.at("ColorVec3"), 1, glm::value_ptr(Planet.m_color));
 
     model_matrix = glm::rotate(glm::fmat4{}, (float(glfwGetTime())/2) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
     model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * Planet.m_dis_org});
@@ -119,10 +122,13 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     glUseProgram(m_shaders.at("planet").handle);
 
     glm::fmat4 model_matrix;
-    // float r = Planet.m_color.x;
-    // float g = Planet.m_color.y;
-    // float b = Planet.m_color.z;
-    // glUniform3f(m_shaders.at("planet").u_locs.at("Color"),r,g,b);
+    // std::cout << Planet.m_color.x << ", " << Planet.m_color.y << ", " << Planet.m_color.z << std::endl;
+    //glm::vec3 colors {1,1,1};
+    float r = Planet.m_color.x;
+    float g = Planet.m_color.y;
+    float b = Planet.m_color.z;
+    glUniform3f(m_shaders.at("planet").u_locs.at("ColorVec3"), r, g, b);
+    //glUniform3fv(m_shaders.at("planet").u_locs.at("ColorVec3"), 1, glm::value_ptr(Planet.m_color));
 
     model_matrix = glm::rotate(glm::fmat4{}, (float(glfwGetTime())/2) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
 
@@ -265,10 +271,12 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
   m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
+  m_shaders.at("planet").u_locs["ColorVec3"] = -1;
 
   m_shaders.at("sun").u_locs["ModelMatrix"] = -1;
   m_shaders.at("sun").u_locs["ViewMatrix"] = -1;
   m_shaders.at("sun").u_locs["ProjectionMatrix"] = -1;
+  m_shaders.at("sun").u_locs["ColorVec3"] = -1;
 
   m_shaders.at("stars").u_locs["ViewMatrix"] = -1;
   m_shaders.at("stars").u_locs["ProjectionMatrix"] = -1;
