@@ -14,6 +14,7 @@ uniform vec3 ColorVec3;
 out vec3 pass_Normal;
 out vec3 pass_Color;
 out vec3 vert_pos;
+out vec3 vert_pos_cam;
 out vec3 vert_pos_world;
 
 void main(void)
@@ -26,5 +27,6 @@ void main(void)
 	vert_pos_world = vec3(ViewMatrix * vec4(vert_pos,0.0) ).xyz;
 	//transform normal otientation
 	pass_Normal = vec3(NormalMatrix * vec4(in_Normal, 0.0)).xyz;
+	vert_pos_cam = vec3(ViewMatrix * ModelMatrix * NormalMatrix * vec4(in_Position, 0.0)).xyz;
 	pass_Color = ColorVec3;
 }

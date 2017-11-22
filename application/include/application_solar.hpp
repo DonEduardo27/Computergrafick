@@ -50,6 +50,7 @@ class ApplicationSolar : public Application {
   std::vector<std::shared_ptr<planet>> planet_container;
   //std::vector<std::shared_ptr<float>> star_container;
   std::vector<float> star_container;
+  int shaderMode;
 };
 
 #endif
