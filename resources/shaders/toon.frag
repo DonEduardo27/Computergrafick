@@ -9,7 +9,7 @@ out vec4 out_Color;
 
 const vec3 light_pos = vec3(0, 0, 0);
 const vec3 ambient_color = vec3(0.1, 0, 0);
-const vec3 diffuse_color = vec3(0.5, 0, 0);
+vec3 diffuse_color = pass_Color;
 const vec3 spec_color = vec3 (1, 1, 1);
 
 const float screenGamma = 2.2;
