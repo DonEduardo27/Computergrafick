@@ -20,7 +20,7 @@ flat out int shaderMode;
 void main(void)
 {
 	gl_Position = (ProjectionMatrix  * ViewMatrix * ModelMatrix) * vec4(in_Position, 1.0);
-	vert_pos_cam = vec3(ViewMatrix * ModelMatrix * NormalMatrix).xyz;
+	vert_pos_cam = vec3(ViewMatrix * ModelMatrix * NormalMatrix * vec4(in_Normal, 0.0)).xyz;
 	//transform normal otientation
 	pass_Normal = vec3(NormalMatrix * vec4(in_Normal, 0.0)).xyz;
 	pass_Color = ColorVec3;
