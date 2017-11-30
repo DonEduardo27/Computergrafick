@@ -8,6 +8,16 @@
 // use gl definitions from glbinding
 using namespace gl;
 
+struct texture{
+  texture(std::string name, std::string path):
+    m_name{name},
+    m_path{path}
+  {}
+    
+  std::string m_name;
+  std::string m_path;
+};
+
 struct star {
   star():
     position{0.0, 0.0, 0.0},

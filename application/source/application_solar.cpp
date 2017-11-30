@@ -27,9 +27,11 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  ,planet_object{}
  {
   loadPlanets();
+  loadTextures();
   initializeGeometry();
   initializeStars();
   initializeRings();
+  initializeTextures();
   initializeShaderPrograms();
   shaderMode = 1;
 }
@@ -399,6 +401,33 @@ void ApplicationSolar::initializeRings() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ring_object.element_BO);
     ring_object.draw_mode = GL_LINE_LOOP;
     ring_object.num_elements = GLsizei(ringPoints.size()/3);
+}
+
+// load Textures
+void ApplicationSolar::initializeTextures(){
+  for(auto i : texture_container){
+    std::cout << i.first << std::endl;
+    glActiveTexture(GL_TEXTURE0);
+    glGenTextures(1, &tex_object.handle);
+    glBindTexture(GL_TEXTURE_2D, tex_object.handle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, i.second.channels, (GLsizei)i.second.width, (GLsizei)i.second.height,
+                 0, i.second.channels, i.second.channel_type, &i.second.pixels);
+  }
+}
+
+// Textures to container
+void ApplicationSolar::loadTextures() {
+  texture earth("earth", m_resource_path + "textures/earthNight2k.tga");
+  texture sun  ("sun"  , m_resource_path + "resources/textures/sun2k.tga");
+
+  texture_container.insert (it, std::pair<std::string,pixel_data>(earth.m_name, texture_loader::file(earth.m_path)));
+  texture_container.insert (it, std::pair<std::string,pixel_data>(sun.m_name, texture_loader::file(sun.m_path)));
+
+  for(auto i : texture_container){
+    std::cout<< "loaded: " << i.first << std::endl;
+  }
 }
 
 // deconstructor
