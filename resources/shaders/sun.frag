@@ -3,6 +3,7 @@
 in vec3 pass_Normal;
 in vec3 pass_Color;
 in vec3 vert_pos_cam;
+in vec4 pass_Texture;
 flat in int shaderMode;
 out vec4 out_Color;
 
@@ -17,7 +18,9 @@ void main() {
     if(abs(view_angle) < 0.5) {
       color = vec3 (1,0,0);
     }
+    
+    out_Color = vec4(color, 1.0);
   }
-
-  out_Color = vec4(color, 1.0);
+  else
+    out_Color = pass_Texture;
 }
