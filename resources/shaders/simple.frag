@@ -12,10 +12,10 @@ out vec4 out_Color;
 
 
 const vec3 light_pos = vec3(0, 0, 0);
-const vec3 ambient_color = vec3(0, 0, 0);
+vec3 ambient_color = vec3(texture(ColorTex, pass_TexCoord)).xyz * 0.01;
 vec3 diffuse_color = vec3(texture(ColorTex, pass_TexCoord)).xyz;
 const vec3 spec_color = vec3 (1, 1, 1);
-const float shininess = 20.0;
+const float shininess = 30.0;
 const float screenGamma = 2.2;
 
 void main() {
