@@ -5,17 +5,18 @@
 #include <glbinding/gl/gl.h>
 #include <glm/vec3.hpp>
 #include <iostream>
+#include <pixel_data.hpp>
 // use gl definitions from glbinding
 using namespace gl;
 
 struct texture{
-  texture(std::string name, std::string path):
+  texture(std::string name, pixel_data pixdata):
     m_name{name},
-    m_path{path}
+    m_pixelData{pixdata}
   {}
-    
+
   std::string m_name;
-  std::string m_path;
+  pixel_data m_pixelData;
 };
 
 struct star {
@@ -43,13 +44,14 @@ struct planet {
   {}
 
   //Constructor
-  planet(float rot, float size, float speed, float dist, int sorroundet, glm::vec3 color):
+  planet(float rot, float size, float speed, float dist, int sorroundet, glm::vec3 color, int k):
     m_rot{rot},
     m_size{size},
     m_speed{speed},
     m_dis_org{dist},
     m_surroundet{sorroundet},
-    m_color{color}
+    m_color{color},
+    m_k{k}
   {
     norm_color();
   }
@@ -67,6 +69,7 @@ struct planet {
   float m_dis_org;  //Temperature on the Planet (distance from Centre)
   int m_surroundet; //orbit center as planet
   glm::vec3 m_color;
+  int m_k;
 };
 
 // gpu representation of model

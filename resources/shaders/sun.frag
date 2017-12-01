@@ -3,8 +3,10 @@
 in vec3 pass_Normal;
 in vec3 pass_Color;
 in vec3 vert_pos_cam;
-in vec4 pass_Texture;
+in vec2 pass_TexCoord;
 flat in int shaderMode;
+uniform sampler2D ColorTex;
+
 out vec4 out_Color;
 
 void main() {
@@ -18,9 +20,9 @@ void main() {
     if(abs(view_angle) < 0.5) {
       color = vec3 (1,0,0);
     }
-    
+
     out_Color = vec4(color, 1.0);
   }
   else
-    out_Color = pass_Texture;
+    out_Color = texture(ColorTex, pass_TexCoord);
 }

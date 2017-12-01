@@ -12,11 +12,11 @@ uniform mat4 ProjectionMatrix;
 uniform mat4 NormalMatrix;
 uniform vec3 ColorVec3;
 uniform int  ShaderMode;
-uniform sampler2D ColorTex;
+
 
 out vec3 pass_Normal;
 out vec3 pass_Color;
-out vec4 pass_Texture;
+out vec2 pass_TexCoord;
 out vec3 vert_pos_cam;
 flat out int shaderMode;
 
@@ -28,6 +28,6 @@ void main(void)
 	pass_Normal = vec3(NormalMatrix * vec4(in_Normal, 0.0)).xyz;
 	shaderMode = ShaderMode;
 
-	pass_Texture = texture(ColorTex, in_Texcoord);
+	pass_TexCoord = in_Texcoord;
 	pass_Color = ColorVec3;
 }
