@@ -1,7 +1,7 @@
 #version 150
 
 in  vec3 pass_Normal;
-in  vec3 pass_Color;
+// in  vec3 pass_Color;
 in  vec3 vert_pos;
 in  vec3 vert_pos_world;
 in  vec2 pass_TexCoord;

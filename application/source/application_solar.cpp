@@ -49,13 +49,12 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 
 //draws all planets in planet container, rings and stars
 void ApplicationSolar::render() const {
-
+  draw_skybox();
   for (auto i : planet_container ){
     upload_planet_transforms(*i);
     do_Rings(*i);
   }
   du_wirst_sehen_stars();
-  // draw_skybox();
 }
 
 //gives planets model and normal matrix
@@ -120,7 +119,7 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
 
     if(shaderMode == 1){
       glUseProgram(m_shaders.at("planet").handle);
-      glUniform3f(m_shaders.at("planet").u_locs.at("ColorVec3"), r, g, b);
+      //glUniform3f(m_shaders.at("planet").u_locs.at("ColorVec3"), r, g, b);
       // glUniform3fv(m_shaders.at("planet").u_locs.at("ColorVec3"), 1, glm::value_ptr(Planet.m_color));
       glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
       glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
@@ -180,7 +179,7 @@ void ApplicationSolar::draw_skybox() const {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex_obj.handle);
   glBindVertexArray(skybox_object.vertex_AO);
-  glDrawArrays(GL_TRIANGLES, 0, 36);
+  glDrawElements(skybox_object.draw_mode, skybox_object.num_elements, model::INDEX.type, NULL);
   glDepthMask(GL_TRUE);
 }
 
@@ -299,7 +298,7 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
   m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
-  m_shaders.at("planet").u_locs["ColorVec3"] = -1;
+  //m_shaders.at("planet").u_locs["ColorVec3"] = -1;
   m_shaders.at("planet").u_locs["ColorTex"] = -1;
 
   m_shaders.at("toon").u_locs["NormalMatrix"] = -1;
@@ -327,9 +326,10 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("ring").u_locs["ProjectionMatrix"] = -1;
 }
 
-// load models
+// load models (planets / skybox)
 void ApplicationSolar::initializeGeometry() {
   model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL | model::TEXCOORD);
+  model skybox_model = model_loader::obj(m_resource_path + "models/skybox.obj", model::TEXCOORD);
   // generate vertex array object
   glGenVertexArrays(1, &planet_object.vertex_AO);
   // bind the array for attaching buffers
@@ -363,60 +363,32 @@ void ApplicationSolar::initializeGeometry() {
   // transfer number of indices to model object
   planet_object.num_elements = GLsizei(planet_model.indices.size());
 
-  /*
-    // cube for skybox
-    float points[] = {
-      -10.0f,  10.0f, -10.0f,
-      -10.0f, -10.0f, -10.0f,
-       10.0f, -10.0f, -10.0f,
-       10.0f, -10.0f, -10.0f,
-       10.0f,  10.0f, -10.0f,
-      -10.0f,  10.0f, -10.0f,
 
-      -10.0f, -10.0f,  10.0f,
-      -10.0f, -10.0f, -10.0f,
-      -10.0f,  10.0f, -10.0f,
-      -10.0f,  10.0f, -10.0f,
-      -10.0f,  10.0f,  10.0f,
-      -10.0f, -10.0f,  10.0f,
-
-       10.0f, -10.0f, -10.0f,
-       10.0f, -10.0f,  10.0f,
-       10.0f,  10.0f,  10.0f,
-       10.0f,  10.0f,  10.0f,
-       10.0f,  10.0f, -10.0f,
-       10.0f, -10.0f, -10.0f,
-
-      -10.0f, -10.0f,  10.0f,
-      -10.0f,  10.0f,  10.0f,
-       10.0f,  10.0f,  10.0f,
-       10.0f,  10.0f,  10.0f,
-       10.0f, -10.0f,  10.0f,
-      -10.0f, -10.0f,  10.0f,
-
-      -10.0f,  10.0f, -10.0f,
-       10.0f,  10.0f, -10.0f,
-       10.0f,  10.0f,  10.0f,
-       10.0f,  10.0f,  10.0f,
-      -10.0f,  10.0f,  10.0f,
-      -10.0f,  10.0f, -10.0f,
-
-      -10.0f, -10.0f, -10.0f,
-      -10.0f, -10.0f,  10.0f,
-       10.0f, -10.0f, -10.0f,
-       10.0f, -10.0f, -10.0f,
-      -10.0f, -10.0f,  10.0f,
-       10.0f, -10.0f,  10.0f
-     };
-    glGenVertexArrays(1, &skybox_object.vertex_AO);
-    glBindVertexArray(planet_object.vertex_AO);
-    glBindBuffer(GL_ARRAY_BUFFER, planet_object.vertex_AO);
-    glGenBuffers(1, &skybox_object.vertex_BO);
-    glBindBuffer(GL_ARRAY_BUFFER, planet_object.vertex_BO);
-    glBufferData(GL_ARRAY_BUFFER, 3 * 36 * sizeof(float), &points, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-  */
+  // cube for skybox
+  // generate vertex array object
+  glGenVertexArrays(1, &skybox_object.vertex_AO);
+  // bind the array for attaching buffers
+  glBindVertexArray(skybox_object.vertex_AO);
+  // generate generic buffer
+  glGenBuffers(1, &skybox_object.vertex_BO);
+  // bind this as an vertex array buffer containing all attributes
+  glBindBuffer(GL_ARRAY_BUFFER, skybox_object.vertex_BO);
+  // configure currently bound array buffer
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * skybox_model.data.size(), skybox_model.data.data(), GL_STATIC_DRAW);
+  // activate first attribute on gpu
+  glEnableVertexAttribArray(0);
+  // first attribute is 3 floats with no offset & stride
+  glVertexAttribPointer(0, model::POSITION.components, model::POSITION.type, GL_FALSE, skybox_model.vertex_bytes, skybox_model.offsets[model::POSITION]);
+  // generate generic buffer
+  glGenBuffers(1, &skybox_object.element_BO);
+  // bind this as an vertex array buffer containing all attributes
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, skybox_object.element_BO);
+  // configure currently bound array buffer
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, model::INDEX.size * skybox_model.indices.size(), skybox_model.indices.data(), GL_STATIC_DRAW);
+  // store type of primitive to draw
+  skybox_object.draw_mode = GL_TRIANGLES;
+  // transfer number of indices to model object
+  skybox_object.num_elements = GLsizei(skybox_model.indices.size());
 }
 
 // load stars
@@ -504,7 +476,7 @@ void ApplicationSolar::initializeSkyBox(){
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
 }
 
-//loads .txt with planet discription (Coputergrafick/planets.txt)
+// loads .txt with planet discription (Coputergrafick/planets.txt)
 void ApplicationSolar::loadPlanets() {
     std::string line;
     std::cout << "Es wird ../planets.txt genutzt" << "\n";
