@@ -532,12 +532,12 @@ void ApplicationSolar::loadTextures() {
   texture venus     ("venus"    , texture_loader::file( m_resource_path + "textures/venus2k.png"));
   texture moon      ("moon"     , texture_loader::file( m_resource_path + "textures/moon2k.png"));
 
-  texture right_box ("skybox_r"   , texture_loader::file( m_resource_path + "textures/right.png"));
-  texture left_box  ("skybox_l"   , texture_loader::file( m_resource_path + "textures/left.png"));
-  texture top_box   ("skybox_u"   , texture_loader::file( m_resource_path + "textures/up.png"));
-  texture bottom_box("skybox_d"   , texture_loader::file( m_resource_path + "textures/down.png"));
-  texture back_box  ("skybox_b"   , texture_loader::file( m_resource_path + "textures/back.png"));
-  texture front_box ("skybox_f"   , texture_loader::file( m_resource_path + "textures/front.png"));
+  texture right_box ("skybox_r"   , texture_loader::file( m_resource_path + "textures/right2.png"));
+  texture left_box  ("skybox_l"   , texture_loader::file( m_resource_path + "textures/left2.png"));
+  texture top_box   ("skybox_u"   , texture_loader::file( m_resource_path + "textures/top2.png"));
+  texture bottom_box("skybox_d"   , texture_loader::file( m_resource_path + "textures/down2.png"));
+  texture back_box  ("skybox_b"   , texture_loader::file( m_resource_path + "textures/back2.png"));
+  texture front_box ("skybox_f"   , texture_loader::file( m_resource_path + "textures/front2.png"));
 
   texture_container.push_back(sun);
   texture_container.push_back(mercury);
