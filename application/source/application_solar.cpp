@@ -38,6 +38,8 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   std::cout << "initializeRings()             complete" << std::endl;
   initializeTextures();
   std::cout << "initializeTextures()          complete" << std::endl;
+  initializeSkyBox();
+  std::cout << "initializeSkybox()            complete" << std::endl;
   initializeShaderPrograms();
   std::cout << "initializeShaderPrograms()    complete" << std::endl;
   shaderMode = 1;
@@ -96,7 +98,7 @@ void ApplicationSolar::render() const {
     do_Rings(*i);
   }
   du_wirst_sehen_stars();
-  // draw_skybox();
+  draw_skybox();
 }
 
 //gives planets model and normal matrix
@@ -127,7 +129,7 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     glUniform1i(m_shaders.at("sun").u_locs.at("ColorTex"), 0);
     // bind the VAO to draw
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex_object[Planet.m_k].handle);
+    glBindTexture(GL_TEXTURE_2D, tex_objects[Planet.m_k].handle);
     glBindVertexArray(planet_object.vertex_AO);
 
     // draw bound vertex array using bound shader
@@ -169,7 +171,7 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
 
       glUniform1i(m_shaders.at("planet").u_locs.at("ColorTex"), 0);
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, tex_object[Planet.m_k].handle);
+      glBindTexture(GL_TEXTURE_2D, tex_objects[Planet.m_k].handle);
     }
     else if(shaderMode == 2){
 
@@ -214,18 +216,19 @@ void ApplicationSolar::do_Rings(planet const& Planet) const {
   glDrawArrays(ring_object.draw_mode, 0, 361); //genauer hinschaun
 }
 
-
+// draw Skybox
 void ApplicationSolar::draw_skybox() const {
-
+  /*
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, tex_object[10].handle);
   glUniform1i(m_shaders.at("skybox").u_locs.at("SkyBoxTex"), 0);
   glDepthFunc(GL_LEQUAL);
   // glDrawElements(GL_TRIANGLES, sizeof(sky_index)/4, GL_UNSIGNED_INT,(void*)0);
   glDepthFunc(GL_LESS);
+  */
 }
 
-
+// update Viewnmatrix
 void ApplicationSolar::updateView() {
   // vertices are transformed in camera space, so camera transform must be inverted
   glm::fmat4 view_matrix = glm::inverse(m_view_transform);
@@ -245,11 +248,11 @@ void ApplicationSolar::updateView() {
   glUseProgram(m_shaders.at("ring").handle);
   glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("ViewMatrix"),  1, GL_FALSE, glm::value_ptr(view_matrix));
 
-  glUseProgram(m_shaders.at("skybox").handle);
-  glUniformMatrix4fv(m_shaders.at("skybox").u_locs.at("ViewMatrix"),  1, GL_FALSE, glm::value_ptr(view_matrix));
+  // glUseProgram(m_shaders.at("skybox").handle);
+  // glUniformMatrix4fv(m_shaders.at("skybox").u_locs.at("ViewMatrix"),  1, GL_FALSE, glm::value_ptr(view_matrix));
 }
 
-
+// update Projectionmatrix
 void ApplicationSolar::updateProjection() {
   // upload matrix to gpu
   glUseProgram(m_shaders.at("planet").handle);
@@ -267,8 +270,8 @@ void ApplicationSolar::updateProjection() {
   glUseProgram(m_shaders.at("ring").handle);
   glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("ProjectionMatrix"),  1, GL_FALSE, glm::value_ptr(m_view_projection));
 
-  glUseProgram(m_shaders.at("skybox").handle);
-  glUniformMatrix4fv(m_shaders.at("skybox").u_locs.at("ProjectionMatrix"),  1, GL_FALSE, glm::value_ptr(m_view_projection));
+  // glUseProgram(m_shaders.at("skybox").handle);
+  // glUniformMatrix4fv(m_shaders.at("skybox").u_locs.at("ProjectionMatrix"),  1, GL_FALSE, glm::value_ptr(m_view_projection));
 }
 
 // update uniform locations
@@ -333,8 +336,8 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.emplace("ring", shader_program{m_resource_path + "shaders/ring.vert",
                                            m_resource_path + "shaders/ring.frag"});
 
-  m_shaders.emplace("skybox", shader_program{m_resource_path + "shaders/skybox.vert",
-                                           m_resource_path + "shaders/skybox.frag"});
+  // m_shaders.emplace("skybox", shader_program{m_resource_path + "shaders/skybox.vert",
+  //                                          m_resource_path + "shaders/skybox.frag"});
 
   m_shaders.at("planet").u_locs["NormalMatrix"] = -1;
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
@@ -360,8 +363,8 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("stars").u_locs["ViewMatrix"] = -1;
   m_shaders.at("stars").u_locs["ProjectionMatrix"] = -1;
 
-  m_shaders.at("skybox").u_locs["ViewMatrix"] = -1;
-  m_shaders.at("skybox").u_locs["ProjectionMatrix"] = -1;
+  // m_shaders.at("skybox").u_locs["ViewMatrix"] = -1;
+  // m_shaders.at("skybox").u_locs["ProjectionMatrix"] = -1;
 
   m_shaders.at("ring").u_locs["ViewMatrix"] = -1;
   m_shaders.at("ring").u_locs["ModelMatrix"] = -1; //1 ring need to be transformed
@@ -450,13 +453,13 @@ void ApplicationSolar::initializeRings() {
     ring_object.num_elements = GLsizei(ringPoints.size()/3);
 }
 
-// load Textures
+// load Textures and assign to apropriat container
 void ApplicationSolar::initializeTextures(){
-  for(unsigned int i = 0; i < texture_container.size() - 5; ++i){
-    if((std::string)texture_container[i].m_name != "skybox") {
+  for(unsigned int i = 0; i < texture_container.size(); ++i){
+      texture_object tex;
       glActiveTexture(GL_TEXTURE0);
-      glGenTextures(1, &tex_object[i].handle);
-      glBindTexture(GL_TEXTURE_2D, tex_object[i].handle);
+      glGenTextures(1, &tex.handle);
+      glBindTexture(GL_TEXTURE_2D, tex.handle);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -464,30 +467,30 @@ void ApplicationSolar::initializeTextures(){
       glTexImage2D(GL_TEXTURE_2D, 0, texture_container[i].m_pixelData.channels, (GLsizei)texture_container[i].m_pixelData.width,
                   (GLsizei)texture_container[i].m_pixelData.height, 0, texture_container[i].m_pixelData.channels,
                   texture_container[i].m_pixelData.channel_type, texture_container[i].m_pixelData.ptr());
+
+      tex_objects.push_back(tex);
     }
-    else {
+}
+
+// load Skybox
+void ApplicationSolar::initializeSkyBox(){
       glActiveTexture(GL_TEXTURE0);
-      glGenTextures(1, &tex_object[i].handle);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, tex_object[i].handle);
+      glGenTextures(1, &skybox_tex_obj.handle);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex_obj.handle);
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-      std::cout << "Fehler?" << std::endl;
-      for(unsigned int idx = 0; idx < 6; ++idx){
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + idx, 0, texture_container[i + idx].m_pixelData.channels, (GLsizei)texture_container[i + idx].m_pixelData.width,
-                    (GLsizei)texture_container[i + idx].m_pixelData.height, 0, tex  ture_container[i + idx].m_pixelData.channels,
-                    texture_container[i + idx].m_pixelData.channel_type, texture_container[i + idx].m_pixelData.ptr());
+      for(unsigned int idx = 0; idx < skybox_container.size(); ++idx){
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + idx, 0, skybox_container[idx].m_pixelData.channels, (GLsizei)skybox_container[idx].m_pixelData.width,
+                    (GLsizei)skybox_container[idx].m_pixelData.height, 0, skybox_container[idx].m_pixelData.channels,
+                    skybox_container[idx].m_pixelData.channel_type, skybox_container[idx].m_pixelData.ptr());
       }
-      std::cout << "Hiervor ist Fehler!" << std::endl;
 
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
-
-    }
-  }
 }
 
 // Textures to container
@@ -502,12 +505,12 @@ void ApplicationSolar::loadTextures() {
   texture uranus    ("uranus"   , texture_loader::file( m_resource_path + "textures/uranus2k.png"));
   texture venus     ("venus"    , texture_loader::file( m_resource_path + "textures/venus2k.png"));
   texture moon      ("moon"     , texture_loader::file( m_resource_path + "textures/moon2k.png"));
-  texture right_box ("skybox"   , texture_loader::file( m_resource_path + "textures/venus2k.png"));
-  texture left_box  ("skybox"   , texture_loader::file( m_resource_path + "textures/venus2k.png"));
-  texture top_box   ("skybox"   , texture_loader::file( m_resource_path + "textures/venus2k.png"));
-  texture bottom_box("skybox"   , texture_loader::file( m_resource_path + "textures/venus2k.png"));
-  texture back_box  ("skybox"   , texture_loader::file( m_resource_path + "textures/venus2k.png"));
-  texture front_box ("skybox"   , texture_loader::file( m_resource_path + "textures/venus2k.png"));
+  texture right_box ("skybox_r"   , texture_loader::file( m_resource_path + "textures/right.png"));
+  texture left_box  ("skybox_l"   , texture_loader::file( m_resource_path + "textures/left.png"));
+  texture top_box   ("skybox_u"   , texture_loader::file( m_resource_path + "textures/up.png"));
+  texture bottom_box("skybox_d"   , texture_loader::file( m_resource_path + "textures/down.png"));
+  texture back_box  ("skybox_b"   , texture_loader::file( m_resource_path + "textures/back.png"));
+  texture front_box ("skybox_f"   , texture_loader::file( m_resource_path + "textures/front.png"));
 
   texture_container.push_back(sun);
   texture_container.push_back(mercury);
@@ -519,12 +522,12 @@ void ApplicationSolar::loadTextures() {
   texture_container.push_back(saturn);
   texture_container.push_back(uranus);
   texture_container.push_back(neptun);
-  texture_container.push_back(right_box);
-  texture_container.push_back(left_box);
-  texture_container.push_back(top_box);
-  texture_container.push_back(bottom_box);
-  texture_container.push_back(back_box);
-  texture_container.push_back(front_box);
+  skybox_container.push_back(right_box);
+  skybox_container.push_back(left_box);
+  skybox_container.push_back(top_box);
+  skybox_container.push_back(bottom_box);
+  skybox_container.push_back(back_box);
+  skybox_container.push_back(front_box);
 }
 
 // deconstructor
@@ -541,10 +544,13 @@ ApplicationSolar::~ApplicationSolar() {
   glDeleteBuffers(1, &ring_object.element_BO);
   glDeleteVertexArrays(1, &ring_object.vertex_AO);
 
-
-  for (unsigned int i = 0; i < 12 /*tex_object.length*/; ++i){
-    glDeleteTextures(1, &tex_object[i].handle);
+  glDeleteTextures(1, &skybox_tex_obj.handle);
+  for (unsigned int i = 0; i < tex_objects.size(); ++i){
+    glDeleteTextures(1, &tex_objects[i].handle);
   }
+
+
+
 
 }
 

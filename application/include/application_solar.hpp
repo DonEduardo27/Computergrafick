@@ -34,6 +34,8 @@ class ApplicationSolar : public Application {
 
   void do_Rings(planet const& Planet) const;
 
+  void draw_skybox() const;
+
   void loadTextures();
 
   // draw all objects
@@ -45,19 +47,19 @@ class ApplicationSolar : public Application {
   void initializeStars();
   void initializeRings();
   void initializeTextures();
+  void initializeSkyBox();
   void updateView();
 
   // cpu representation of model
   model_object planet_object;
   model_object star_object;
   model_object ring_object;
-  texture_object t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12;
-  texture_object tex_object[12] = {t1,  t2,  t3,  t4, t5,  t6,  t7,  t8, t9, t10, t11, t12};
-  //Vector with all smartpointers asigned for every planet
+  texture_object skybox_tex_obj;
+  std::vector<texture_object> tex_objects;
   std::vector<std::shared_ptr<planet>> planet_container;
-  //std::vector<std::shared_ptr<float>> star_container;
   std::vector<float> star_container;
   std::vector<texture> texture_container;
+  std::vector<texture> skybox_container;
   int shaderMode;
 };
 
