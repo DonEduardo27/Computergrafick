@@ -47,49 +47,6 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   std::cout << "--------------------------------------\n" << std::endl;
 }
 
-//loads .txt with planet discription (Coputergrafick/planets.txt)
-void ApplicationSolar::loadPlanets() {
-    std::string line;
-    std::cout << "Es wird ../planets.txt genutzt" << "\n";
-    std::ifstream myfile("../planets.txt");
-
-    if (myfile.is_open()){
-      while ( getline (myfile,line) ){
-        std::stringstream ss;
-        ss<<line;
-        float rot,size,dist,speed;
-        int surrround;
-        glm::vec3 color;
-        int k;
-
-        ss>>size;
-        ss>>speed;
-        ss>>dist;
-        ss>>rot;
-        ss>>surrround;
-        ss>>color.x;
-        ss>>color.y;
-        ss>>color.z;
-        ss>>k;
-
-        std::shared_ptr<planet> new_planet = std::make_shared<planet>(planet{float(rot) ,float(size), float(speed), float(dist), int(surrround), color, k});
-        planet_container.push_back(new_planet);
-      }
-      myfile.close();
-    }
-    else {
-      std::cout << "----------------------------------------"<< "\n";
-      std::cout << "ERROR: Unable to load file"<< "\n";
-      std::cout << "Loading default objkts: Sun, Earth, Moon"<< "\n";
-      glm::vec3 color{255, 255, 255};
-      planet sonne{0.5, 8, 0, 0, 0, color, 0}, earth{1, 1, 1.4f, 17, 0, color, 0}, moon{1, 0.2f, 17, 1.5f, 1, color, 0};
-      auto sun = std::make_shared<planet> (sonne);
-      auto erde = std::make_shared<planet> (earth);
-      auto mond = std::make_shared<planet> (moon);
-      planet_container.insert(std::end(planet_container), {sun, erde, mond});
-    }
-}
-
 //draws all planets in planet container, rings and stars
 void ApplicationSolar::render() const {
 
@@ -98,7 +55,7 @@ void ApplicationSolar::render() const {
     do_Rings(*i);
   }
   du_wirst_sehen_stars();
-  draw_skybox();
+  // draw_skybox();
 }
 
 //gives planets model and normal matrix
@@ -218,14 +175,13 @@ void ApplicationSolar::do_Rings(planet const& Planet) const {
 
 // draw Skybox
 void ApplicationSolar::draw_skybox() const {
-  /*
+  glDepthMask(GL_FALSE);
+  glUseProgram(m_shaders.at("skybox").handle);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, tex_object[10].handle);
-  glUniform1i(m_shaders.at("skybox").u_locs.at("SkyBoxTex"), 0);
-  glDepthFunc(GL_LEQUAL);
-  // glDrawElements(GL_TRIANGLES, sizeof(sky_index)/4, GL_UNSIGNED_INT,(void*)0);
-  glDepthFunc(GL_LESS);
-  */
+  glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex_obj.handle);
+  glBindVertexArray(skybox_object.vertex_AO);
+  glDrawArrays(GL_TRIANGLES, 0, 36);
+  glDepthMask(GL_TRUE);
 }
 
 // update Viewnmatrix
@@ -248,8 +204,8 @@ void ApplicationSolar::updateView() {
   glUseProgram(m_shaders.at("ring").handle);
   glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("ViewMatrix"),  1, GL_FALSE, glm::value_ptr(view_matrix));
 
-  // glUseProgram(m_shaders.at("skybox").handle);
-  // glUniformMatrix4fv(m_shaders.at("skybox").u_locs.at("ViewMatrix"),  1, GL_FALSE, glm::value_ptr(view_matrix));
+  glUseProgram(m_shaders.at("skybox").handle);
+  glUniformMatrix4fv(m_shaders.at("skybox").u_locs.at("ViewMatrix"),  1, GL_FALSE, glm::value_ptr(view_matrix));
 }
 
 // update Projectionmatrix
@@ -270,8 +226,8 @@ void ApplicationSolar::updateProjection() {
   glUseProgram(m_shaders.at("ring").handle);
   glUniformMatrix4fv(m_shaders.at("ring").u_locs.at("ProjectionMatrix"),  1, GL_FALSE, glm::value_ptr(m_view_projection));
 
-  // glUseProgram(m_shaders.at("skybox").handle);
-  // glUniformMatrix4fv(m_shaders.at("skybox").u_locs.at("ProjectionMatrix"),  1, GL_FALSE, glm::value_ptr(m_view_projection));
+  glUseProgram(m_shaders.at("skybox").handle);
+  glUniformMatrix4fv(m_shaders.at("skybox").u_locs.at("ProjectionMatrix"),  1, GL_FALSE, glm::value_ptr(m_view_projection));
 }
 
 // update uniform locations
@@ -336,8 +292,8 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.emplace("ring", shader_program{m_resource_path + "shaders/ring.vert",
                                            m_resource_path + "shaders/ring.frag"});
 
-  // m_shaders.emplace("skybox", shader_program{m_resource_path + "shaders/skybox.vert",
-  //                                          m_resource_path + "shaders/skybox.frag"});
+  m_shaders.emplace("skybox", shader_program{m_resource_path + "shaders/skybox.vert",
+                                            m_resource_path + "shaders/skybox.frag"});
 
   m_shaders.at("planet").u_locs["NormalMatrix"] = -1;
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
@@ -363,8 +319,8 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("stars").u_locs["ViewMatrix"] = -1;
   m_shaders.at("stars").u_locs["ProjectionMatrix"] = -1;
 
-  // m_shaders.at("skybox").u_locs["ViewMatrix"] = -1;
-  // m_shaders.at("skybox").u_locs["ProjectionMatrix"] = -1;
+  m_shaders.at("skybox").u_locs["ViewMatrix"] = -1;
+  m_shaders.at("skybox").u_locs["ProjectionMatrix"] = -1;
 
   m_shaders.at("ring").u_locs["ViewMatrix"] = -1;
   m_shaders.at("ring").u_locs["ModelMatrix"] = -1; //1 ring need to be transformed
@@ -396,7 +352,7 @@ void ApplicationSolar::initializeGeometry() {
   glEnableVertexAttribArray(2);
   // third attribute is TextCoord
   glVertexAttribPointer(2, model::TEXCOORD.components, model::TEXCOORD.type, GL_FALSE, planet_model.vertex_bytes, planet_model.offsets[model::TEXCOORD]);
-   // generate generic buffer
+  // generate generic buffer
   glGenBuffers(1, &planet_object.element_BO);
   // bind this as an vertex array buffer containing all attributes
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, planet_object.element_BO);
@@ -406,6 +362,61 @@ void ApplicationSolar::initializeGeometry() {
   planet_object.draw_mode = GL_TRIANGLES;
   // transfer number of indices to model object
   planet_object.num_elements = GLsizei(planet_model.indices.size());
+
+  /*
+    // cube for skybox
+    float points[] = {
+      -10.0f,  10.0f, -10.0f,
+      -10.0f, -10.0f, -10.0f,
+       10.0f, -10.0f, -10.0f,
+       10.0f, -10.0f, -10.0f,
+       10.0f,  10.0f, -10.0f,
+      -10.0f,  10.0f, -10.0f,
+
+      -10.0f, -10.0f,  10.0f,
+      -10.0f, -10.0f, -10.0f,
+      -10.0f,  10.0f, -10.0f,
+      -10.0f,  10.0f, -10.0f,
+      -10.0f,  10.0f,  10.0f,
+      -10.0f, -10.0f,  10.0f,
+
+       10.0f, -10.0f, -10.0f,
+       10.0f, -10.0f,  10.0f,
+       10.0f,  10.0f,  10.0f,
+       10.0f,  10.0f,  10.0f,
+       10.0f,  10.0f, -10.0f,
+       10.0f, -10.0f, -10.0f,
+
+      -10.0f, -10.0f,  10.0f,
+      -10.0f,  10.0f,  10.0f,
+       10.0f,  10.0f,  10.0f,
+       10.0f,  10.0f,  10.0f,
+       10.0f, -10.0f,  10.0f,
+      -10.0f, -10.0f,  10.0f,
+
+      -10.0f,  10.0f, -10.0f,
+       10.0f,  10.0f, -10.0f,
+       10.0f,  10.0f,  10.0f,
+       10.0f,  10.0f,  10.0f,
+      -10.0f,  10.0f,  10.0f,
+      -10.0f,  10.0f, -10.0f,
+
+      -10.0f, -10.0f, -10.0f,
+      -10.0f, -10.0f,  10.0f,
+       10.0f, -10.0f, -10.0f,
+       10.0f, -10.0f, -10.0f,
+      -10.0f, -10.0f,  10.0f,
+       10.0f, -10.0f,  10.0f
+     };
+    glGenVertexArrays(1, &skybox_object.vertex_AO);
+    glBindVertexArray(planet_object.vertex_AO);
+    glBindBuffer(GL_ARRAY_BUFFER, planet_object.vertex_AO);
+    glGenBuffers(1, &skybox_object.vertex_BO);
+    glBindBuffer(GL_ARRAY_BUFFER, planet_object.vertex_BO);
+    glBufferData(GL_ARRAY_BUFFER, 3 * 36 * sizeof(float), &points, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+  */
 }
 
 // load stars
@@ -493,6 +504,49 @@ void ApplicationSolar::initializeSkyBox(){
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
 }
 
+//loads .txt with planet discription (Coputergrafick/planets.txt)
+void ApplicationSolar::loadPlanets() {
+    std::string line;
+    std::cout << "Es wird ../planets.txt genutzt" << "\n";
+    std::ifstream myfile("../planets.txt");
+
+    if (myfile.is_open()){
+      while ( getline (myfile,line) ){
+        std::stringstream ss;
+        ss<<line;
+        float rot,size,dist,speed;
+        int surrround;
+        glm::vec3 color;
+        int k;
+
+        ss>>size;
+        ss>>speed;
+        ss>>dist;
+        ss>>rot;
+        ss>>surrround;
+        ss>>color.x;
+        ss>>color.y;
+        ss>>color.z;
+        ss>>k;
+
+        std::shared_ptr<planet> new_planet = std::make_shared<planet>(planet{float(rot) ,float(size), float(speed), float(dist), int(surrround), color, k});
+        planet_container.push_back(new_planet);
+      }
+      myfile.close();
+    }
+    else {
+      std::cout << "----------------------------------------"<< "\n";
+      std::cout << "ERROR: Unable to load file"<< "\n";
+      std::cout << "Loading default objkts: Sun, Earth, Moon"<< "\n";
+      glm::vec3 color{255, 255, 255};
+      planet sonne{0.5, 8, 0, 0, 0, color, 0}, earth{1, 1, 1.4f, 17, 0, color, 0}, moon{1, 0.2f, 17, 1.5f, 1, color, 0};
+      auto sun = std::make_shared<planet> (sonne);
+      auto erde = std::make_shared<planet> (earth);
+      auto mond = std::make_shared<planet> (moon);
+      planet_container.insert(std::end(planet_container), {sun, erde, mond});
+    }
+}
+
 // Textures to container
 void ApplicationSolar::loadTextures() {
   texture earth     ("earth"    , texture_loader::file( m_resource_path + "textures/earth2k.png"));
@@ -505,6 +559,7 @@ void ApplicationSolar::loadTextures() {
   texture uranus    ("uranus"   , texture_loader::file( m_resource_path + "textures/uranus2k.png"));
   texture venus     ("venus"    , texture_loader::file( m_resource_path + "textures/venus2k.png"));
   texture moon      ("moon"     , texture_loader::file( m_resource_path + "textures/moon2k.png"));
+
   texture right_box ("skybox_r"   , texture_loader::file( m_resource_path + "textures/right.png"));
   texture left_box  ("skybox_l"   , texture_loader::file( m_resource_path + "textures/left.png"));
   texture top_box   ("skybox_u"   , texture_loader::file( m_resource_path + "textures/up.png"));
@@ -522,6 +577,7 @@ void ApplicationSolar::loadTextures() {
   texture_container.push_back(saturn);
   texture_container.push_back(uranus);
   texture_container.push_back(neptun);
+
   skybox_container.push_back(right_box);
   skybox_container.push_back(left_box);
   skybox_container.push_back(top_box);

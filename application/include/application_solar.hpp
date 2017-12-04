@@ -54,6 +54,7 @@ class ApplicationSolar : public Application {
   model_object planet_object;
   model_object star_object;
   model_object ring_object;
+  model_object skybox_object;
   texture_object skybox_tex_obj;
   std::vector<texture_object> tex_objects;
   std::vector<std::shared_ptr<planet>> planet_container;
