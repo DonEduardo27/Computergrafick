@@ -25,7 +25,7 @@ void main() {
 
     vec3 bi_tangent = cross(pass_Normal, pass_Tangent);
     mat3 tangent    = mat3(pass_Tangent, bi_tangent, pass_Normal);
-    vec3 normal     = normalize(tangent * normal_color); //Length of normal is 1
+    vec3 normal     = normalize(tangent * normal_color);
     vec3 light_dir  = normalize(  (vec4(light_pos - vert_pos_world, 0.0)).xyz);  //calculating direction light comes from(important for specular)
     vec3 view_dir   = normalize( -(vec4(vert_pos_world, 0.0)).xyz);              //calculating direction form where we look on (important for diffuse)
 

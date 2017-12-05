@@ -127,8 +127,10 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
 
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, tex_objects[Planet.m_k].handle);
+
       glActiveTexture(GL_TEXTURE0+1);
       glBindTexture(GL_TEXTURE_2D, tex_norm_objects[Planet.m_n].handle);
+
     }
     else if(shaderMode == 2){
 
@@ -256,11 +258,11 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
   }
   else if (key == GLFW_KEY_1) {
     shaderMode = 1;
-    //updateView();
+    updateView();
   }
   else if (key == GLFW_KEY_2) {
     shaderMode = 2;
-    //updateView();
+    updateView();
   }
 }
 
@@ -560,7 +562,8 @@ void ApplicationSolar::loadTextures() {
   texture back_box  ("skybox_b"   , texture_loader::file( m_resource_path + "textures/back2.png"));
   texture front_box ("skybox_f"   , texture_loader::file( m_resource_path + "textures/front2.png"));
 
-  texture earth_norm("earth_normal", texture_loader::file( m_resource_path + "textures/earth_norm.png"));
+  texture earth_norm("earth_normal", texture_loader::file( m_resource_path + "normalMaps/earth_norm.png"));
+  texture d_norm    ("earth_normal", texture_loader::file( m_resource_path + "normalMaps/default_normal.png"));
 
   texture_container.push_back(sun);
   texture_container.push_back(mercury);
@@ -580,6 +583,7 @@ void ApplicationSolar::loadTextures() {
   skybox_container.push_back(back_box);
   skybox_container.push_back(front_box);
 
+  normal_container.push_back(d_norm);
   normal_container.push_back(earth_norm);
 }
 
