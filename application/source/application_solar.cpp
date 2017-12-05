@@ -78,7 +78,6 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     float b = Planet.m_color.z;
 
     glUniform3f(m_shaders.at("sun").u_locs.at("ColorVec3"), r, g, b);
-    // glUniform3fv(m_shaders.at("planet").u_locs.at("ColorVec3"), 1, glm::value_ptr(Planet.m_color));
     glUniformMatrix4fv(m_shaders.at("sun").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
     glUniformMatrix4fv(m_shaders.at("sun").u_locs.at("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
     glUniform1i(m_shaders.at("sun").u_locs.at("ShaderMode"), shaderMode);
@@ -119,21 +118,22 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
 
     if(shaderMode == 1){
       glUseProgram(m_shaders.at("planet").handle);
-      //glUniform3f(m_shaders.at("planet").u_locs.at("ColorVec3"), r, g, b);
-      // glUniform3fv(m_shaders.at("planet").u_locs.at("ColorVec3"), 1, glm::value_ptr(Planet.m_color));
       glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
       glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
       glBindVertexArray(planet_object.vertex_AO);
 
       glUniform1i(m_shaders.at("planet").u_locs.at("ColorTex"), 0);
+      glUniform1i(m_shaders.at("planet").u_locs.at("NormalTex"), 0);
+
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, tex_objects[Planet.m_k].handle);
+      glActiveTexture(GL_TEXTURE0+1);
+      glBindTexture(GL_TEXTURE_2D, tex_norm_objects[Planet.m_n].handle);
     }
     else if(shaderMode == 2){
 
       glUseProgram(m_shaders.at("toon").handle);
       glUniform3f(m_shaders.at("toon").u_locs.at("ColorVec3"), r, g, b);
-      //glUniform3fv(m_shaders.at("planet").u_locs.at("ColorVec3"), 1, glm::value_ptr(Planet.m_color));
       glUniformMatrix4fv(m_shaders.at("toon").u_locs.at("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model_matrix));
       glUniformMatrix4fv(m_shaders.at("toon").u_locs.at("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
       glBindVertexArray(planet_object.vertex_AO);
@@ -266,10 +266,9 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
 
 //handle delta mouse movement input, Y-axis not rotating but up/down movement
 void ApplicationSolar::mouseCallback(double pos_x, double pos_y) {
-  // mouse handling
   m_view_transform = glm::rotate(m_view_transform, float(pos_x)/100, glm::fvec3{0.0f, -1.0f, 0.0f});
-  m_view_transform = glm::translate(m_view_transform,glm::fvec3{0.0f, float(pos_y)/100, 0.0f});
-  // upload matrix to gpu
+  // m_view_transform = glm::rotate(m_view_transform, float(pos_y)/100, glm::fvec3{0.0f, -1.0f, 0.0f});
+  m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, float(pos_y)/100, 0.0f});
   updateView();
 }
 
@@ -298,7 +297,7 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
   m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
-  //m_shaders.at("planet").u_locs["ColorVec3"] = -1;
+  m_shaders.at("planet").u_locs["NormalTex"] = -1;
   m_shaders.at("planet").u_locs["ColorTex"] = -1;
 
   m_shaders.at("toon").u_locs["NormalMatrix"] = -1;
@@ -328,8 +327,8 @@ void ApplicationSolar::initializeShaderPrograms() {
 
 // load models (planets / skybox)
 void ApplicationSolar::initializeGeometry() {
-  model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL | model::TEXCOORD);
-  model skybox_model = model_loader::obj(m_resource_path + "models/skybox.obj", model::TEXCOORD);
+  model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL | model::TEXCOORD | model::TANGENT);
+  model skybox_model = model_loader::obj(m_resource_path + "models/skybox.obj");
   // generate vertex array object
   glGenVertexArrays(1, &planet_object.vertex_AO);
   // bind the array for attaching buffers
@@ -352,6 +351,10 @@ void ApplicationSolar::initializeGeometry() {
   glEnableVertexAttribArray(2);
   // third attribute is TextCoord
   glVertexAttribPointer(2, model::TEXCOORD.components, model::TEXCOORD.type, GL_FALSE, planet_model.vertex_bytes, planet_model.offsets[model::TEXCOORD]);
+  // activate fourth attribute on gpu
+  glEnableVertexAttribArray(3);
+  // fourth attribute is TextCoord
+  glVertexAttribPointer(3, model::TANGENT.components, model::TANGENT.type, GL_FALSE, planet_model.vertex_bytes, planet_model.offsets[model::TANGENT]);
   // generate generic buffer
   glGenBuffers(1, &planet_object.element_BO);
   // bind this as an vertex array buffer containing all attributes
@@ -452,7 +455,23 @@ void ApplicationSolar::initializeTextures(){
                   texture_container[i].m_pixelData.channel_type, texture_container[i].m_pixelData.ptr());
 
       tex_objects.push_back(tex);
-    }
+  }
+
+  for(unsigned int i = 0; i < normal_container.size(); ++i){
+      texture_object tex_norm;
+      glActiveTexture(GL_TEXTURE0+1);
+      glGenTextures(1, &tex_norm.handle);
+      glBindTexture(GL_TEXTURE_2D, tex_norm.handle);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexImage2D(GL_TEXTURE_2D, 0, normal_container[i].m_pixelData.channels, (GLsizei)normal_container[i].m_pixelData.width,
+                  (GLsizei)normal_container[i].m_pixelData.height, 0, normal_container[i].m_pixelData.channels,
+                  normal_container[i].m_pixelData.channel_type, normal_container[i].m_pixelData.ptr());
+
+      tex_norm_objects.push_back(tex_norm);
+  }
 }
 
 // load Skybox
@@ -490,6 +509,7 @@ void ApplicationSolar::loadPlanets() {
         int surrround;
         glm::vec3 color;
         int k;
+        int n;
 
         ss>>size;
         ss>>speed;
@@ -500,8 +520,9 @@ void ApplicationSolar::loadPlanets() {
         ss>>color.y;
         ss>>color.z;
         ss>>k;
+        ss>>n;
 
-        std::shared_ptr<planet> new_planet = std::make_shared<planet>(planet{float(rot) ,float(size), float(speed), float(dist), int(surrround), color, k});
+        std::shared_ptr<planet> new_planet = std::make_shared<planet>(planet{float(rot) ,float(size), float(speed), float(dist), int(surrround), color, k, n});
         planet_container.push_back(new_planet);
       }
       myfile.close();
@@ -511,7 +532,7 @@ void ApplicationSolar::loadPlanets() {
       std::cout << "ERROR: Unable to load file"<< "\n";
       std::cout << "Loading default objkts: Sun, Earth, Moon"<< "\n";
       glm::vec3 color{255, 255, 255};
-      planet sonne{0.5, 8, 0, 0, 0, color, 0}, earth{1, 1, 1.4f, 17, 0, color, 0}, moon{1, 0.2f, 17, 1.5f, 1, color, 0};
+      planet sonne{0.5, 8, 0, 0, 0, color, 0, 0}, earth{1, 1, 1.4f, 17, 0, color, 0, 0}, moon{1, 0.2f, 17, 1.5f, 1, color, 0, 0};
       auto sun = std::make_shared<planet> (sonne);
       auto erde = std::make_shared<planet> (earth);
       auto mond = std::make_shared<planet> (moon);
@@ -539,6 +560,8 @@ void ApplicationSolar::loadTextures() {
   texture back_box  ("skybox_b"   , texture_loader::file( m_resource_path + "textures/back2.png"));
   texture front_box ("skybox_f"   , texture_loader::file( m_resource_path + "textures/front2.png"));
 
+  texture earth_norm("earth_normal", texture_loader::file( m_resource_path + "textures/earth_norm.png"));
+
   texture_container.push_back(sun);
   texture_container.push_back(mercury);
   texture_container.push_back(venus);
@@ -556,6 +579,8 @@ void ApplicationSolar::loadTextures() {
   skybox_container.push_back(bottom_box);
   skybox_container.push_back(back_box);
   skybox_container.push_back(front_box);
+
+  normal_container.push_back(earth_norm);
 }
 
 // deconstructor
@@ -573,6 +598,7 @@ ApplicationSolar::~ApplicationSolar() {
   glDeleteVertexArrays(1, &ring_object.vertex_AO);
 
   glDeleteTextures(1, &skybox_tex_obj.handle);
+
   for (unsigned int i = 0; i < tex_objects.size(); ++i){
     glDeleteTextures(1, &tex_objects[i].handle);
   }

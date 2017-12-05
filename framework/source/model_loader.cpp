@@ -20,10 +20,10 @@ model obj(std::string const& name, model::attrib_flag_t import_attribs){
 
   if (!err.empty()) {
     if (err[0] == 'W' && err[1] == 'A' && err[2] == 'R') {
-      std::cerr << "tinyobjloader: " << err << std::endl;    
+      std::cerr << "tinyobjloader: " << err << std::endl;
     }
     else {
-      throw std::logic_error("tinyobjloader: " + err);    
+      throw std::logic_error("tinyobjloader: " + err);
     }
   }
 
@@ -154,16 +154,27 @@ std::vector<glm::fvec3> generate_tangents(tinyobj::mesh_t const& model) {
                            model.indices[i * 3 + 1],
                            model.indices[i * 3 + 2]};
     // access an attribute of xth vert with vector access "attribute[indices[x]]"
-    
-    // calculate tangent for the triangle and add it to the accumulation tangents of the adjacent vertices
-    // see generate_normals() for similar workflow 
+    //ab folie 10 yorriks foliensatz L6
+    glm::fvec3  delta_p1   = positions[indices[1]] - positions[indices[0]];
+    glm::fvec3  delta_p2   = positions[indices[2]] - positions[indices[0]];
+    glm::fvec2  delta_u    = texcoords[indices[1]] - texcoords[indices[0]];
+    glm::fvec2  delta_v    = texcoords[indices[2]] - texcoords[indices[0]];
+    glm::mat2   delta_uv   = glm::mat2{delta_v.y, -delta_v.x, -delta_u.y, delta_u.x};
+    glm::mat2x3 delta_xyz  = glm::mat2x3({delta_p1.x, delta_p1.y, delta_p1.z}, {delta_p2.x, delta_p2.y, delta_p2.z});
+    glm::mat3x2 p          = (1/(delta_u.x*delta_v.y - delta_u.y*delta_v.x)) * delta_uv * transpose(delta_xyz);
+    glm::fvec3  t1         = glm::fvec3(p[0][0], p[1][0], p[2][0]);
+
+    for(unsigned int idx = 0; idx < 3; ++idx){
+      tangents[indices[idx]] += t1;
+    }
   }
   // normalize and orthogonalize accumulated vertex tangents
   for (unsigned i = 0; i < tangents.size(); ++i) {
-    // implement orthogonalization and normalization here
+    glm::fvec3 t2 = tangents[i] * normals[i] * glm::dot(normals[i], tangents[i]);
+    tangents[i] = normalize(t2);
   }
 
-  throw std::logic_error("Tangent creation not implemented yet");
+  //throw std::logic_error("Tangent creation not implemented yet");
 
   return tangents;
 }

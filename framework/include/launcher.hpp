@@ -29,7 +29,7 @@ class Launcher {
 
     mainLoop();
   }
-  
+
   // create window and set callbacks
   void initialize();
   // start main loop

@@ -44,14 +44,15 @@ struct planet {
   {}
 
   //Constructor
-  planet(float rot, float size, float speed, float dist, int sorroundet, glm::vec3 color, int k):
+  planet(float rot, float size, float speed, float dist, int sorroundet, glm::vec3 color, int k, int n):
     m_rot{rot},
     m_size{size},
     m_speed{speed},
     m_dis_org{dist},
     m_surroundet{sorroundet},
     m_color{color},
-    m_k{k}
+    m_k{k},
+    m_n{n}
   {
     norm_color();
   }
@@ -70,6 +71,7 @@ struct planet {
   int m_surroundet; //orbit center as planet
   glm::vec3 m_color;
   int m_k;
+  int m_n;
 };
 
 // gpu representation of model

@@ -57,9 +57,11 @@ class ApplicationSolar : public Application {
   model_object skybox_object;
   texture_object skybox_tex_obj;
   std::vector<texture_object> tex_objects;
+  std::vector<texture_object> tex_norm_objects;
   std::vector<std::shared_ptr<planet>> planet_container;
   std::vector<float> star_container;
   std::vector<texture> texture_container;
+  std::vector<texture> normal_container;
   std::vector<texture> skybox_container;
   int shaderMode;
 };

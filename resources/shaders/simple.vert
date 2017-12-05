@@ -4,6 +4,7 @@
 layout(location = 0) in vec3 in_Position;
 layout(location = 1) in vec3 in_Normal;
 layout(location = 2) in vec2 in_Texcoord;
+layout(location = 3) in vec3 in_Tangent;
 
 //Matrix Uniforms as specified with glUniformMatrix4fv
 uniform mat4 ModelMatrix;
@@ -17,6 +18,7 @@ out vec3 pass_Color;
 out vec3 vert_pos;
 out vec3 vert_pos_world;
 out vec2 pass_TexCoord;
+out vec3 pass_Tangent;
 
 void main(void)
 {
@@ -30,5 +32,6 @@ void main(void)
 	pass_Normal = vec3(NormalMatrix * vec4(in_Normal, 0.0)).xyz;
 	//pass_Color = ColorVec3;
 	pass_TexCoord = in_Texcoord;
+	pass_Tangent = vec3(NormalMatrix * vec4(in_Tangent, 0.0)).xyz;
 
 }
