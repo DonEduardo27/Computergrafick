@@ -16,9 +16,7 @@ const float screenGamma = 2.2;
 
 void main() {
   vec3 normal = normalize(pass_Normal); //Length of normal is 1
-
   vec3 light_dir = normalize(  (vec4(light_pos - vert_pos_world, 0.0)).xyz);  //calculating direction light comes from(important for specular)
-  vec3 view_dir  = normalize( -(vec4(vert_pos_world, 0.0)).xyz);              //calculating direction form where we look on (important for diffuse)
 
   float diffuse = max(dot(light_dir, normal),0.0);
   float specular = 0.0;
@@ -33,7 +31,7 @@ void main() {
     else if (diffuse > 0.0){diffuse = 0.33;}
 
     const float shininess = 100.0;
-    vec3 half_dir = normalize(light_dir + eye_dir); //view_dir);
+    vec3 half_dir = normalize(light_dir + eye_dir);
     float spec_angle = max(dot(half_dir, normal), 0.0);
 
     if(spec_angle > 0.995){spec_angle = 1;}

@@ -27,16 +27,15 @@ void main() {
     mat3 tangent    = mat3(pass_Tangent, bi_tangent, pass_Normal);
     vec3 normal     = normalize(tangent * normal_color).rgb;
     vec3 light_dir  = normalize(  (vec4(light_pos - vert_pos_world, 0.0)).xyz);  //calculating direction light comes from(important for specular)
-    vec3 view_dir   = normalize( -(vec4(vert_pos_world, 0.0)).xyz);              //calculating direction form where we look on (important for diffuse)
+    vec3 eye_dir = normalize( -vert_pos_cam);
 
     float diffuse   = max(dot(light_dir, normal),0.0);
     float specular  = 0.0;
-    vec3 eye_dir = normalize( -vert_pos_cam);
     float view_angle = dot(eye_dir, normal);
 
 
     if(diffuse > 0.0) {
-      vec3 half_dir    = normalize(light_dir + eye_dir);//view_dir);
+      vec3 half_dir    = normalize(light_dir + eye_dir);
       float spec_angle = max(dot(half_dir, normal), 0.0);
       specular = pow(spec_angle, shininess);
     }
