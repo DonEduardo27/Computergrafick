@@ -4,6 +4,7 @@ in  vec3 pass_Normal;
 // in  vec3 pass_Color;
 in  vec3 vert_pos;
 in  vec3 vert_pos_world;
+in  vec3 vert_pos_cam;
 in  vec2 pass_TexCoord;
 in  vec3 pass_Tangent;
 
@@ -30,9 +31,12 @@ void main() {
 
     float diffuse   = max(dot(light_dir, normal),0.0);
     float specular  = 0.0;
+    vec3 eye_dir = normalize( -vert_pos_cam);
+    float view_angle = dot(eye_dir, normal);
+
 
     if(diffuse > 0.0) {
-      vec3 half_dir    = normalize(light_dir + view_dir);
+      vec3 half_dir    = normalize(light_dir + eye_dir);//view_dir);
       float spec_angle = max(dot(half_dir, normal), 0.0);
       specular = pow(spec_angle, shininess);
     }

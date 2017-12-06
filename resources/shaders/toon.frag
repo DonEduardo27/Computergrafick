@@ -22,6 +22,9 @@ void main() {
 
   float diffuse = max(dot(light_dir, normal),0.0);
   float specular = 0.0;
+  vec3 eye_dir = normalize( -vert_pos_cam);
+  float view_angle = dot(eye_dir, normal);
+
 
   if(diffuse > 0.0){
 
@@ -30,7 +33,7 @@ void main() {
     else if (diffuse > 0.0){diffuse = 0.33;}
 
     const float shininess = 100.0;
-    vec3 half_dir = normalize(light_dir + view_dir);
+    vec3 half_dir = normalize(light_dir + eye_dir); //view_dir);
     float spec_angle = max(dot(half_dir, normal), 0.0);
 
     if(spec_angle > 0.995){spec_angle = 1;}
@@ -41,9 +44,6 @@ void main() {
 
   vec3 color_linear = ambient_color + diffuse * diffuse_color + specular * spec_color;
   vec3 color_gamma_corr = pow(color_linear, vec3(1.0/screenGamma));
-
-  vec3 eye_dir = normalize( -vert_pos_cam);
-  float view_angle = dot(eye_dir, normal);
 
   if(abs(view_angle) < 0.2) {
     color_gamma_corr = vec3 (1,1,1);
