@@ -16,7 +16,7 @@ out vec4 out_Color;
 const vec3 light_pos = vec3(0, 0, 0);
 vec3 ambient_color = vec3(texture(ColorTex, pass_TexCoord)).xyz * 0.01;
 vec3 diffuse_color = vec3(texture(ColorTex, pass_TexCoord)).xyz;
-vec3 normal_color = vec3(texture(NormalTex, pass_TexCoord)).rgb * 2.0f - 1.0f;
+vec3 normal_color  = vec3(texture(NormalTex, pass_TexCoord)).rgb * 2.0f - 1.0f;
 const vec3 spec_color = vec3 (1, 1, 1);
 const float shininess = 30.0;
 const float screenGamma = 2.2;
@@ -24,7 +24,7 @@ const float screenGamma = 2.2;
 void main() {
     vec3 bi_tangent = cross(pass_Normal, pass_Tangent);
     mat3 tangent    = mat3(pass_Tangent, bi_tangent, pass_Normal);
-    vec3 normal     = normalize(tangent * normal_color);
+    vec3 normal     = normalize(tangent * normal_color).rgb;
     vec3 light_dir  = normalize(  (vec4(light_pos - vert_pos_world, 0.0)).xyz);  //calculating direction light comes from(important for specular)
     vec3 view_dir   = normalize( -(vec4(vert_pos_world, 0.0)).xyz);              //calculating direction form where we look on (important for diffuse)
 

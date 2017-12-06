@@ -268,7 +268,6 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
 //handle delta mouse movement input, Y-axis not rotating but up/down movement
 void ApplicationSolar::mouseCallback(double pos_x, double pos_y) {
   m_view_transform = glm::rotate(m_view_transform, float(pos_x)/100, glm::fvec3{0.0f, -1.0f, 0.0f});
-  // m_view_transform = glm::rotate(m_view_transform, float(pos_y)/100, glm::fvec3{0.0f, -1.0f, 0.0f});
   m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, float(pos_y)/100, 0.0f});
   updateView();
 }
@@ -552,8 +551,7 @@ void ApplicationSolar::loadTextures() {
   texture saturn    ("saturn"   , texture_loader::file( m_resource_path + "textures/saturn2k.png"));
   texture uranus    ("uranus"   , texture_loader::file( m_resource_path + "textures/uranus2k.png"));
   texture venus     ("venus"    , texture_loader::file( m_resource_path + "textures/venus2k.png"));
-  texture moon      ("moon"     , texture_loader::file( m_resource_path + "textures/moon2k.png"));
-
+  texture moon      ("moon"     , texture_loader::file( m_resource_path + "textures/moonmap2k.png"));
   texture right_box ("skybox_r"   , texture_loader::file( m_resource_path + "textures/right2.png"));
   texture left_box  ("skybox_l"   , texture_loader::file( m_resource_path + "textures/left2.png"));
   texture top_box   ("skybox_u"   , texture_loader::file( m_resource_path + "textures/top2.png"));
@@ -561,7 +559,7 @@ void ApplicationSolar::loadTextures() {
   texture back_box  ("skybox_b"   , texture_loader::file( m_resource_path + "textures/back2.png"));
   texture front_box ("skybox_f"   , texture_loader::file( m_resource_path + "textures/front2.png"));
 
-  texture earth_norm("earth_normal", texture_loader::file( m_resource_path + "normalMaps/earth_norm.png"));
+  texture earth_norm("earth_normal", texture_loader::file( m_resource_path + "normalMaps/earth_deatil3.png"));
   texture d_norm    ("defau_normal", texture_loader::file( m_resource_path + "normalMaps/default_normal.png"));
 
   texture_container.push_back(sun);
@@ -605,10 +603,6 @@ ApplicationSolar::~ApplicationSolar() {
   for (unsigned int i = 0; i < tex_objects.size(); ++i){
     glDeleteTextures(1, &tex_objects[i].handle);
   }
-
-
-
-
 }
 
 // exe entry point
