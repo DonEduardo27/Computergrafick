@@ -122,14 +122,13 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
       glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
       glBindVertexArray(planet_object.vertex_AO);
 
-      glUniform1i(m_shaders.at("planet").u_locs.at("ColorTex"), 0);
-      glUniform1i(m_shaders.at("planet").u_locs.at("NormalTex"), 0);
-
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, tex_objects[Planet.m_k].handle);
+      glUniform1i(m_shaders.at("planet").u_locs.at("ColorTex"), 0);
 
       glActiveTexture(GL_TEXTURE0+1);
       glBindTexture(GL_TEXTURE_2D, tex_norm_objects[Planet.m_n].handle);
+      glUniform1i(m_shaders.at("planet").u_locs.at("NormalTex"), 1);
 
     }
     else if(shaderMode == 2){
@@ -563,7 +562,7 @@ void ApplicationSolar::loadTextures() {
   texture front_box ("skybox_f"   , texture_loader::file( m_resource_path + "textures/front2.png"));
 
   texture earth_norm("earth_normal", texture_loader::file( m_resource_path + "normalMaps/earth_norm.png"));
-  texture d_norm    ("earth_normal", texture_loader::file( m_resource_path + "normalMaps/default_normal.png"));
+  texture d_norm    ("defau_normal", texture_loader::file( m_resource_path + "normalMaps/default_normal.png"));
 
   texture_container.push_back(sun);
   texture_container.push_back(mercury);

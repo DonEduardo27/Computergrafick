@@ -22,7 +22,6 @@ const float shininess = 30.0;
 const float screenGamma = 2.2;
 
 void main() {
-
     vec3 bi_tangent = cross(pass_Normal, pass_Tangent);
     mat3 tangent    = mat3(pass_Tangent, bi_tangent, pass_Normal);
     vec3 normal     = normalize(tangent * normal_color);
