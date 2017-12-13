@@ -44,6 +44,8 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   std::cout << "initializeSkybox()            complete" << std::endl;
   initializeShaderPrograms();
   std::cout << "initializeShaderPrograms()    complete" << std::endl;
+  initializeScreenQuad();
+  std::cout << "initializeScreenQuad()        complete" << std::endl;
   shaderMode = 1;
   std::cout << "initialization                complete" << std::endl;
   std::cout << "--------------------------------------\n" << std::endl;
@@ -51,19 +53,23 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 
 //draws all planets in planet container, rings and stars
 void ApplicationSolar::render() const {
+
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj.handle);
+  glViewport(0,0,1024,768);
+  // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
+
   draw_skybox();
   for (auto i : planet_container ){
     upload_planet_transforms(*i);
     do_Rings(*i);
   }
   du_wirst_sehen_stars();
+  draw_screen_quad();
 }
 
 //gives planets model and normal matrix
 void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
-
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj.handle);
-  glEnable(GL_DEPTH_TEST);
 
   if(Planet.m_dis_org == 0){
 
@@ -146,7 +152,6 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     // glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
   }
 
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
 }
 
@@ -179,18 +184,27 @@ void ApplicationSolar::do_Rings(planet const& Planet) const {
 
 // draw Skybox
 void ApplicationSolar::draw_skybox() const {
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj.handle);
-  glEnable(GL_DEPTH_TEST);
-
   glDepthMask(GL_FALSE);
   glUseProgram(m_shaders.at("skybox").handle);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex_obj.handle);
   glBindVertexArray(skybox_object.vertex_AO);
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDrawElements(skybox_object.draw_mode, skybox_object.num_elements, model::INDEX.type, NULL);
   glDepthMask(GL_TRUE);
+}
+
+// draw screen quad
+void ApplicationSolar::draw_screen_quad() const{
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glUseProgram(m_shaders.at("quad").handle);
+  glBindTexture(GL_TEXTURE_2D, framebuffer_tex_obj.handle);
+  glUniform1i(m_shaders.at("quad").u_locs.at("texFramebuffer"), 0);
+  glActiveTexture(GL_TEXTURE0);
+  glBindVertexArray(screen_quad_object.vertex_AO);
+  glDrawArrays(screen_quad_object.draw_mode, 0, screen_quad_object.num_elements);
+
 }
 
 // update Viewnmatrix
@@ -302,6 +316,10 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.emplace("skybox", shader_program{m_resource_path + "shaders/skybox.vert",
                                             m_resource_path + "shaders/skybox.frag"});
 
+  m_shaders.emplace("quad", shader_program{m_resource_path + "shaders/screen_quad.vert",
+                                           m_resource_path + "shaders/screen_quad.frag"});
+
+
   m_shaders.at("planet").u_locs["NormalMatrix"] = -1;
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
@@ -322,6 +340,8 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("sun").u_locs["ColorVec3"] = -1;
   m_shaders.at("sun").u_locs["ShaderMode"] = -1;
   m_shaders.at("sun").u_locs["ColorTex"] = -1;
+
+  m_shaders.at("quad").u_locs["texFramebuffer"] = -1;
 
   m_shaders.at("stars").u_locs["ViewMatrix"] = -1;
   m_shaders.at("stars").u_locs["ProjectionMatrix"] = -1;
@@ -401,6 +421,23 @@ void ApplicationSolar::initializeGeometry() {
   skybox_object.draw_mode = GL_TRIANGLES;
   // transfer number of indices to model object
   skybox_object.num_elements = GLsizei(skybox_model.indices.size());
+}
+
+// load screen quad
+void ApplicationSolar::initializeScreenQuad() {
+
+  model quad_model = model_loader::obj(m_resource_path + "models/screen_quad.obj",  model::NORMAL);
+
+  glGenVertexArrays(1, &screen_quad_object.vertex_AO);
+  glBindVertexArray(screen_quad_object.vertex_AO);
+  glGenBuffers(1, &screen_quad_object.vertex_BO);
+  glBindBuffer(GL_ARRAY_BUFFER, screen_quad_object.vertex_BO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * quad_model.data.size(), quad_model.data.data(), GL_STATIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, model::POSITION.components, model::POSITION.type, GL_FALSE, quad_model.vertex_bytes, quad_model.offsets[model::POSITION]);
+  screen_quad_object.draw_mode = GL_TRIANGLES;
+  screen_quad_object.num_elements = GLsizei(quad_model.indices.size());
+
 }
 
 // load stars
@@ -503,7 +540,8 @@ void ApplicationSolar::initializeFramebuffer(){
   glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebuffer_tex_obj.handle, 0);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer_obj.handle);
 
-  draw_buffers[0] = {GL_COLOR_ATTACHMENT0};
+  GLenum draw_buffers[1] = {GL_COLOR_ATTACHMENT0};
+  glDrawBuffers(1, draw_buffers);
 
   GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE){

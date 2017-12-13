@@ -36,6 +36,8 @@ class ApplicationSolar : public Application {
 
   void draw_skybox() const;
 
+  void draw_screen_quad() const;
+
   void loadTextures();
 
   // draw all objects
@@ -49,6 +51,7 @@ class ApplicationSolar : public Application {
   void initializeTextures();
   void initializeFramebuffer();
   void initializeSkyBox();
+  void initializeScreenQuad();
   void updateView();
 
   // cpu representation of model
@@ -60,7 +63,6 @@ class ApplicationSolar : public Application {
   texture_object skybox_tex_obj, framebuffer_tex_obj;
   framebuffer_object framebuffer_obj;
   renderbuffer_object depthrenderbuffer_obj;
-  GLenum draw_buffers[1];
   std::vector<texture_object> tex_objects;
   std::vector<texture_object> tex_norm_objects;
   std::vector<std::shared_ptr<planet>> planet_container;
