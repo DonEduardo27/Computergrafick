@@ -9,6 +9,17 @@
 // use gl definitions from glbinding
 using namespace gl;
 
+
+struct framebuffer_object{
+    GLuint handle = 0;
+    GLenum target = GL_NONE;
+};
+
+struct renderbuffer_object{
+    GLuint handle = 0;
+    GLenum target = GL_NONE;
+};
+
 struct texture{
   texture(std::string name, pixel_data pixdata):
     m_name{name},

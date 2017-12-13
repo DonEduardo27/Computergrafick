@@ -38,6 +38,8 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   std::cout << "initializeRings()             complete" << std::endl;
   initializeTextures();
   std::cout << "initializeTextures()          complete" << std::endl;
+  initializeFramebuffer();
+  std::cout << "initializeFramebuffer()       complete" << std::endl;
   initializeSkyBox();
   std::cout << "initializeSkybox()            complete" << std::endl;
   initializeShaderPrograms();
@@ -60,19 +62,21 @@ void ApplicationSolar::render() const {
 //gives planets model and normal matrix
 void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
 
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj.handle);
+  glEnable(GL_DEPTH_TEST);
+
   if(Planet.m_dis_org == 0){
 
     glUseProgram(m_shaders.at("sun").handle);
 
     glm::fmat4 model_matrix;
-    // std::cout << Planet.m_color.x << ", " << Planet.m_color.y << ", " << Planet.m_color.z << std::endl;
     model_matrix = glm::rotate(glm::fmat4{}, (float(glfwGetTime())/2) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
     model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f * Planet.m_dis_org});
     model_matrix = glm::rotate(model_matrix, float(glfwGetTime()/2) * Planet.m_speed, glm::fvec3{0.0f, 1.0f, 0.0f});
     glm::vec3 p_size {Planet.m_size,Planet.m_size,Planet.m_size};
     model_matrix = glm::scale(model_matrix, p_size);
     glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
-    // glm::vec3 colors {1,1,1};
+
     float r = Planet.m_color.x;
     float g = Planet.m_color.y;
     float b = Planet.m_color.z;
@@ -88,14 +92,12 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     glBindVertexArray(planet_object.vertex_AO);
 
     // draw bound vertex array using bound shader
-    glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
+    // glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
   }
 
   else{
 
     glm::fmat4 model_matrix;
-    // std::cout << Planet.m_color.x << ", " << Planet.m_color.y << ", " << Planet.m_color.z << std::endl;
-
     model_matrix = glm::rotate(glm::fmat4{}, (float(glfwGetTime())/2) * Planet.m_rot, glm::fvec3{0.0f, 1.0f, 0.0f});
 
     //if planet is not orbiting around the sun (origin)
@@ -111,7 +113,7 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
 
     // extra matrix for normal transformation to keep them orthogonal to surface
     glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
-    //glm::vec3 colors {1,1,1};
+
     float r = Planet.m_color.x;
     float g = Planet.m_color.y;
     float b = Planet.m_color.z;
@@ -141,9 +143,11 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
    }
 
     // draw bound vertex array using bound shader
-    glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
+    // glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
   }
 
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
 }
 
 // do stars
@@ -175,11 +179,16 @@ void ApplicationSolar::do_Rings(planet const& Planet) const {
 
 // draw Skybox
 void ApplicationSolar::draw_skybox() const {
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj.handle);
+  glEnable(GL_DEPTH_TEST);
+
   glDepthMask(GL_FALSE);
   glUseProgram(m_shaders.at("skybox").handle);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex_obj.handle);
   glBindVertexArray(skybox_object.vertex_AO);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDrawElements(skybox_object.draw_mode, skybox_object.num_elements, model::INDEX.type, NULL);
   glDepthMask(GL_TRUE);
 }
@@ -474,6 +483,34 @@ void ApplicationSolar::initializeTextures(){
   }
 }
 
+// load Textures into framebuffer
+void ApplicationSolar::initializeFramebuffer(){
+
+  glGenFramebuffers(1, &framebuffer_obj.handle);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj.handle);
+
+  glGenTextures(1, &framebuffer_tex_obj.handle);
+  glBindTexture(GL_TEXTURE_2D, framebuffer_tex_obj.handle);
+
+  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, 1024, 768, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  glGenRenderbuffers(1, &depthrenderbuffer_obj.handle);
+  glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer_obj.handle);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1024, 768);
+
+  glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebuffer_tex_obj.handle, 0);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer_obj.handle);
+
+  draw_buffers[0] = {GL_COLOR_ATTACHMENT0};
+
+  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER);
+  if (status != GL_FRAMEBUFFER_COMPLETE){
+    std::cout << "ERROR Framebuffer not complete" << '\n';
+  }
+}
+
 // load Skybox
 void ApplicationSolar::initializeSkyBox(){
       glActiveTexture(GL_TEXTURE0);
@@ -599,6 +636,10 @@ ApplicationSolar::~ApplicationSolar() {
   glDeleteVertexArrays(1, &ring_object.vertex_AO);
 
   glDeleteTextures(1, &skybox_tex_obj.handle);
+  glDeleteTextures(1, &framebuffer_tex_obj.handle);
+
+  glDeleteRenderbuffers(1, &depthrenderbuffer_obj.handle);
+  glDeleteFramebuffers(1, &framebuffer_obj.handle);
 
   for (unsigned int i = 0; i < tex_objects.size(); ++i){
     glDeleteTextures(1, &tex_objects[i].handle);

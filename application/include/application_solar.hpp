@@ -47,6 +47,7 @@ class ApplicationSolar : public Application {
   void initializeStars();
   void initializeRings();
   void initializeTextures();
+  void initializeFramebuffer();
   void initializeSkyBox();
   void updateView();
 
@@ -55,7 +56,11 @@ class ApplicationSolar : public Application {
   model_object star_object;
   model_object ring_object;
   model_object skybox_object;
-  texture_object skybox_tex_obj;
+  model_object screen_quad_object;
+  texture_object skybox_tex_obj, framebuffer_tex_obj;
+  framebuffer_object framebuffer_obj;
+  renderbuffer_object depthrenderbuffer_obj;
+  GLenum draw_buffers[1];
   std::vector<texture_object> tex_objects;
   std::vector<texture_object> tex_norm_objects;
   std::vector<std::shared_ptr<planet>> planet_container;
