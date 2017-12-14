@@ -55,8 +55,8 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 void ApplicationSolar::render() const {
 
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj.handle);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glViewport(0,0,1024,768);
-  // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
 
   draw_skybox();
@@ -151,7 +151,6 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     // draw bound vertex array using bound shader
     // glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
   }
-
   glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
 }
 
@@ -196,14 +195,15 @@ void ApplicationSolar::draw_skybox() const {
 // draw screen quad
 void ApplicationSolar::draw_screen_quad() const{
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glUseProgram(m_shaders.at("quad").handle);
+
+  glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, framebuffer_tex_obj.handle);
   glUniform1i(m_shaders.at("quad").u_locs.at("texFramebuffer"), 0);
-  glActiveTexture(GL_TEXTURE0);
   glBindVertexArray(screen_quad_object.vertex_AO);
   glDrawArrays(screen_quad_object.draw_mode, 0, screen_quad_object.num_elements);
+  //glDrawElements(screen_quad_object.draw_mode, screen_quad_object.num_elements, model::INDEX.type, NULL);
 
 }
 
@@ -426,17 +426,30 @@ void ApplicationSolar::initializeGeometry() {
 // load screen quad
 void ApplicationSolar::initializeScreenQuad() {
 
-  model quad_model = model_loader::obj(m_resource_path + "models/screen_quad.obj",  model::NORMAL);
+  model quad_model = model_loader::obj(m_resource_path + "models/screen_quad.obj",  model::TEXCOORD);
+  // static const GLfloat quad_vert[] = {-1.0, -1.0, 0.0, 0.0, 0.0, 1.0, -1.0, 0.0, 1.0, 0.0, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0};
 
   glGenVertexArrays(1, &screen_quad_object.vertex_AO);
   glBindVertexArray(screen_quad_object.vertex_AO);
   glGenBuffers(1, &screen_quad_object.vertex_BO);
   glBindBuffer(GL_ARRAY_BUFFER, screen_quad_object.vertex_BO);
+
   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * quad_model.data.size(), quad_model.data.data(), GL_STATIC_DRAW);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, model::POSITION.components, model::POSITION.type, GL_FALSE, quad_model.vertex_bytes, quad_model.offsets[model::POSITION]);
-  screen_quad_object.draw_mode = GL_TRIANGLES;
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, model::TEXCOORD.components, model::TEXCOORD.type, GL_FALSE, quad_model.vertex_bytes, quad_model.offsets[model::TEXCOORD]);
+  screen_quad_object.draw_mode = GL_TRIANGLE_STRIP;
   screen_quad_object.num_elements = GLsizei(quad_model.indices.size());
+
+  // glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vert), quad_vert, GL_STATIC_DRAW);
+  // glEnableVertexAttribArray(0);
+  // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*) 0);
+  // glEnableVertexAttribArray(1);
+  // glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*) 3);
+  //
+  // screen_quad_object.draw_mode = GL_TRIANGLE_STRIP;
+  // screen_quad_object.num_elements = GLsizei((sizeof(quad_vert))/(5*sizeof(float)));
 
 }
 
@@ -523,20 +536,19 @@ void ApplicationSolar::initializeTextures(){
 // load Textures into framebuffer
 void ApplicationSolar::initializeFramebuffer(){
 
-  glGenFramebuffers(1, &framebuffer_obj.handle);
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj.handle);
-
-  glGenTextures(1, &framebuffer_tex_obj.handle);
-  glBindTexture(GL_TEXTURE_2D, framebuffer_tex_obj.handle);
-
-  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, 1024, 768, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
   glGenRenderbuffers(1, &depthrenderbuffer_obj.handle);
   glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer_obj.handle);
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1024, 768);
 
+  glActiveTexture(GL_TEXTURE0);
+  glGenTextures(1, &framebuffer_tex_obj.handle);
+  glBindTexture(GL_TEXTURE_2D, framebuffer_tex_obj.handle);
+  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, 1024, 768, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  glGenFramebuffers(1, &framebuffer_obj.handle);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj.handle);
   glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebuffer_tex_obj.handle, 0);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer_obj.handle);
 
