@@ -24,11 +24,13 @@ void main() {
     }
 
     if(effectMode == 8){
-      outColor = texture(texFramebuffer, pass_texcoord);
+      float x = 1 - pass_texcoord.x;
+      outColor = texture(texFramebuffer, vec2(x, pass_texcoord.y));
     }
 
     if(effectMode == 9){
-      outColor = texture(texFramebuffer, pass_texcoord);
+      float y = 1 - pass_texcoord.y;
+      outColor = texture(texFramebuffer, vec2(pass_texcoord.x, y));
     }
 
     if(effectMode == 0){
