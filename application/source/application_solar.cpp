@@ -47,6 +47,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   initializeScreenQuad();
   std::cout << "initializeScreenQuad()        complete" << std::endl;
   shaderMode = 1;
+  effectMode = 6;
   std::cout << "initialization                complete" << std::endl;
   std::cout << "--------------------------------------\n" << std::endl;
 }
@@ -198,13 +199,13 @@ void ApplicationSolar::draw_screen_quad() const{
 
   glUseProgram(m_shaders.at("quad").handle);
 
+  glUniform1i(m_shaders.at("quad").u_locs.at("EffectMode"), effectMode);
+
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, framebuffer_tex_obj.handle);
   glUniform1i(m_shaders.at("quad").u_locs.at("texFramebuffer"), 0);
   glBindVertexArray(screen_quad_object.vertex_AO);
   glDrawArrays(screen_quad_object.draw_mode, 0, screen_quad_object.num_elements);
-  //glDrawElements(screen_quad_object.draw_mode, screen_quad_object.num_elements, model::INDEX.type, NULL);
-
 }
 
 // update Viewnmatrix
@@ -286,6 +287,26 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
     shaderMode = 2;
     updateView();
   }
+  else if (key == GLFW_KEY_6) {
+    effectMode = 6;
+    updateView();
+  }
+  else if (key == GLFW_KEY_7) {
+    effectMode = 7;
+    updateView();
+  }
+  else if (key == GLFW_KEY_8) {
+    effectMode = 8;
+    updateView();
+  }
+  else if (key == GLFW_KEY_9) {
+    effectMode = 9;
+    updateView();
+  }
+  else if (key == GLFW_KEY_0) {
+    effectMode = 0;
+    updateView();
+  }
 }
 
 //handle delta mouse movement input, Y-axis not rotating but up/down movement
@@ -342,6 +363,7 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("sun").u_locs["ColorTex"] = -1;
 
   m_shaders.at("quad").u_locs["texFramebuffer"] = -1;
+  m_shaders.at("quad").u_locs["EffectMode"] = -1;
 
   m_shaders.at("stars").u_locs["ViewMatrix"] = -1;
   m_shaders.at("stars").u_locs["ProjectionMatrix"] = -1;

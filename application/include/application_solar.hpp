@@ -71,6 +71,7 @@ class ApplicationSolar : public Application {
   std::vector<texture> normal_container;
   std::vector<texture> skybox_container;
   int shaderMode;
+  int effectMode;
 };
 
 #endif
