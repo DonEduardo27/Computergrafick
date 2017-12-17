@@ -464,7 +464,7 @@ void ApplicationSolar::initializeScreenQuad() {
   screen_quad_object.draw_mode = GL_TRIANGLE_STRIP;
   screen_quad_object.num_elements = GLsizei(quad_model.indices.size());
 
-  // glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vert), quad_vert, GL_STATIC_DRAW);
+  // glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vert), &quad_vert[0], GL_STATIC_DRAW);
   // glEnableVertexAttribArray(0);
   // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*) 0);
   // glEnableVertexAttribArray(1);
