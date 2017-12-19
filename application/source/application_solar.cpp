@@ -47,7 +47,10 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   initializeScreenQuad();
   std::cout << "initializeScreenQuad()        complete" << std::endl;
   shaderMode = 1;
-  effectMode = 6;
+  effectMode.x = 0;
+  effectMode.y = 0;
+  effectMode.z = 0;
+  effectMode.w = 0;
   std::cout << "initialization                complete" << std::endl;
   std::cout << "--------------------------------------\n" << std::endl;
 }
@@ -199,7 +202,7 @@ void ApplicationSolar::draw_screen_quad() const{
 
   glUseProgram(m_shaders.at("quad").handle);
 
-  glUniform1i(m_shaders.at("quad").u_locs.at("EffectMode"), effectMode);
+  glUniform4f(m_shaders.at("quad").u_locs.at("EffectMode"), effectMode.x, effectMode.y, effectMode.z, effectMode.w);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, framebuffer_tex_obj.handle);
@@ -261,7 +264,7 @@ void ApplicationSolar::uploadUniforms() {
   updateProjection();
 }
 
-// handle key input W A S D
+// handle key input W A S D and shader modi and effects
 void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) {
   if (key == GLFW_KEY_W) {
     m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, -1.0f});
@@ -287,24 +290,20 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
     shaderMode = 2;
     updateView();
   }
-  else if (key == GLFW_KEY_6) {
-    effectMode = 6;
+  else if (key == GLFW_KEY_7 && action == GLFW_PRESS) {
+    (effectMode.x == 0) ? effectMode.x = 1 : effectMode.x = 0;
     updateView();
   }
-  else if (key == GLFW_KEY_7) {
-    effectMode = 7;
+  else if (key == GLFW_KEY_8 && action == GLFW_PRESS) {
+    (effectMode.y == 0) ? effectMode.y = 1 : effectMode.y = 0;
     updateView();
   }
-  else if (key == GLFW_KEY_8) {
-    effectMode = 8;
+  else if (key == GLFW_KEY_9 && action == GLFW_PRESS) {
+    (effectMode.z == 0) ? effectMode.z = 1 : effectMode.z = 0;
     updateView();
   }
-  else if (key == GLFW_KEY_9) {
-    effectMode = 9;
-    updateView();
-  }
-  else if (key == GLFW_KEY_0) {
-    effectMode = 0;
+  else if (key == GLFW_KEY_0 && action == GLFW_PRESS) {
+    (effectMode.w == 0) ? effectMode.w = 1 : effectMode.w = 0;
     updateView();
   }
 }

@@ -70,8 +70,8 @@ class ApplicationSolar : public Application {
   std::vector<texture> texture_container;
   std::vector<texture> normal_container;
   std::vector<texture> skybox_container;
+  glm::vec4 effectMode;
   int shaderMode;
-  int effectMode;
 };
 
 #endif
