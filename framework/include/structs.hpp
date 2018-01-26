@@ -20,6 +20,21 @@ struct renderbuffer_object{
     GLenum target = GL_NONE;
 };
 
+struct particle_position_object{
+    GLuint handle = 0;
+    GLenum target = GL_NONE;
+};
+
+struct particle_billbaord_object{
+    GLuint handle = 0;
+    GLenum target = GL_NONE;
+};
+
+struct particle_color_object{
+    GLuint handle = 0;
+    GLenum target = GL_NONE;
+};
+
 struct texture{
   texture(std::string name, pixel_data pixdata):
     m_name{name},

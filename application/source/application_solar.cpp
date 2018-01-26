@@ -40,6 +40,8 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   std::cout << "initializeTextures()          complete" << std::endl;
   initializeFramebuffer();
   std::cout << "initializeFramebuffer()       complete" << std::endl;
+  initializeGodRayFramebuffer();
+  std::cout << "initializeGodRayFramebuffer() complete" << std::endl;
   initializeSkyBox();
   std::cout << "initializeSkybox()            complete" << std::endl;
   initializeShaderPrograms();
@@ -58,7 +60,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 //draws all planets in planet container, rings and stars
 void ApplicationSolar::render() const {
 
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj.handle);
+  glBindFramebuffer(GL_FRAMEBUFFER, god_ray_framebuffer_obj.handle);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glViewport(0,0,1024,768);
   glEnable(GL_DEPTH_TEST);
@@ -101,6 +103,7 @@ void ApplicationSolar::upload_planet_transforms(planet const& Planet) const {
     glBindTexture(GL_TEXTURE_2D, tex_objects[Planet.m_k].handle);
     glBindVertexArray(planet_object.vertex_AO);
 
+    sun_mod_mat = model_matrix;
     // draw bound vertex array using bound shader
     // glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
   }
@@ -207,6 +210,18 @@ void ApplicationSolar::draw_screen_quad() const{
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, framebuffer_tex_obj.handle);
   glUniform1i(m_shaders.at("quad").u_locs.at("texFramebuffer"), 0);
+
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, god_ray_framebuffer_tex_obj.handle);
+  glUniform1i(m_shaders.at("quad").u_locs.at("firstPass"), 1);
+
+  // get position of light on screen (normalized)
+  glm::fmat4 tmp_mat = cam_pro_mat * cam_view_mat * sun_mod_mat;
+  glm::fvec4 light_pos =  tmp_mat * glm::fvec4{0.0f, 0.0f, 0.0f, 1.0f};
+  light_pos = light_pos/light_pos.z;
+
+  glUniform4fv(m_shaders.at("quad").u_locs.at("light_pos"), 1, glm::value_ptr(light_pos));
+
   glBindVertexArray(screen_quad_object.vertex_AO);
   glDrawArrays(screen_quad_object.draw_mode, 0, screen_quad_object.num_elements);
 }
@@ -215,6 +230,7 @@ void ApplicationSolar::draw_screen_quad() const{
 void ApplicationSolar::updateView() {
   // vertices are transformed in camera space, so camera transform must be inverted
   glm::fmat4 view_matrix = glm::inverse(m_view_transform);
+  cam_view_mat = view_matrix;
   // upload matrix to gpu
   glUseProgram(m_shaders.at("planet").handle);
   glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"), 1, GL_FALSE, glm::value_ptr(view_matrix));
@@ -237,6 +253,7 @@ void ApplicationSolar::updateView() {
 
 // update Projectionmatrix
 void ApplicationSolar::updateProjection() {
+  cam_pro_mat = m_view_projection;
   // upload matrix to gpu
   glUseProgram(m_shaders.at("planet").handle);
   glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(m_view_projection));
@@ -363,6 +380,8 @@ void ApplicationSolar::initializeShaderPrograms() {
 
   m_shaders.at("quad").u_locs["texFramebuffer"] = -1;
   m_shaders.at("quad").u_locs["EffectMode"] = -1;
+  m_shaders.at("quad").u_locs["light_pos"] = -1;
+  m_shaders.at("quad").u_locs["firstPass"] = -1;
 
   m_shaders.at("stars").u_locs["ViewMatrix"] = -1;
   m_shaders.at("stars").u_locs["ProjectionMatrix"] = -1;
@@ -582,6 +601,34 @@ void ApplicationSolar::initializeFramebuffer(){
   }
 }
 
+// load Textures into God Ray framebuffer
+void ApplicationSolar::initializeGodRayFramebuffer(){
+
+    glGenRenderbuffers(1, &god_ray_depthrenderbuffer_obj.handle);
+    glBindRenderbuffer(GL_RENDERBUFFER, god_ray_depthrenderbuffer_obj.handle);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1024, 768);
+
+    glActiveTexture(GL_TEXTURE0);
+    glGenTextures(1, &god_ray_framebuffer_tex_obj.handle);
+    glBindTexture(GL_TEXTURE_2D, god_ray_framebuffer_tex_obj.handle);
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, 1024, 768, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glGenFramebuffers(1, &god_ray_framebuffer_obj.handle);
+    glBindFramebuffer(GL_FRAMEBUFFER, god_ray_framebuffer_obj.handle);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, god_ray_framebuffer_tex_obj.handle, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, god_ray_depthrenderbuffer_obj.handle);
+
+    GLenum god_ray_buffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, god_ray_buffers);
+
+    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE){
+      std::cout << "ERROR God-Ray framebuffer not complete" << '\n';
+    }
+}
+
 // load Skybox
 void ApplicationSolar::initializeSkyBox(){
       glActiveTexture(GL_TEXTURE0);
@@ -708,9 +755,11 @@ ApplicationSolar::~ApplicationSolar() {
 
   glDeleteTextures(1, &skybox_tex_obj.handle);
   glDeleteTextures(1, &framebuffer_tex_obj.handle);
+  glDeleteTextures(1, &god_ray_framebuffer_tex_obj.handle);
 
   glDeleteRenderbuffers(1, &depthrenderbuffer_obj.handle);
   glDeleteFramebuffers(1, &framebuffer_obj.handle);
+  glDeleteFramebuffers(1, &god_ray_framebuffer_obj.handle);
 
   for (unsigned int i = 0; i < tex_objects.size(); ++i){
     glDeleteTextures(1, &tex_objects[i].handle);
