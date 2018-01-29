@@ -85,6 +85,7 @@ class ApplicationSolar : public Application {
   mutable glm::fmat4 cam_view_mat;
   glm::vec4 effectMode;
   int shaderMode;
+  bool rays;
 
 };
 

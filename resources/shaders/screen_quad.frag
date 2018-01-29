@@ -61,7 +61,7 @@ void main() {
 		vec2 textCoo = pass_texcoord;
         vec2 lightPos = light_pos.xy/2 + vec2(0.5, 0.5);
 		vec2 deltaTexCoord = (textCoo - lightPos) / float(NUM_SAMPLES) * density;
-		float illuminationDecay = 1.0;
+		float illuminationDecay = 0.5;
 
 		vec4 god_rays = texture2D(firstPass, textCoo);
 

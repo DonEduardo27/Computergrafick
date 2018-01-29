@@ -53,6 +53,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   effectMode.y = 0;
   effectMode.z = 0;
   effectMode.w = 0;
+  rays = true;
   std::cout << "initialization                complete" << std::endl;
   std::cout << "--------------------------------------\n" << std::endl;
 }
@@ -321,6 +322,10 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
   }
   else if (key == GLFW_KEY_0 && action == GLFW_PRESS) {
     (effectMode.w == 0) ? effectMode.w = 1 : effectMode.w = 0;
+    updateView();
+  }
+  else if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+    (rays == true) ? rays = false : rays = true;
     updateView();
   }
 }
