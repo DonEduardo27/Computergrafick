@@ -59,7 +59,7 @@ void main() {
     if(true){
         // from here: http://fabiensanglard.net/lightScattering/
 		vec2 textCoo = pass_texcoord;
-        vec2 lightPos = light_pos.xy/2 + vec2(0.5, 0.5);
+        vec2 lightPos = light_pos.xy/2 + vec2(0.5, 0.5); // lightPos in middle of quad
 		vec2 deltaTexCoord = (textCoo - lightPos) / float(NUM_SAMPLES) * density;
 		float illuminationDecay = 0.5;
 

@@ -219,6 +219,7 @@ void ApplicationSolar::draw_screen_quad() const{
   // get position of light on screen (normalized)
   glm::fmat4 tmp_mat = cam_pro_mat * cam_view_mat * sun_mod_mat;
   glm::fvec4 light_pos =  tmp_mat * glm::fvec4{0.0f, 0.0f, 0.0f, 1.0f};
+  // Homogeneous divide
   light_pos = light_pos/light_pos.z;
 
   glUniform4fv(m_shaders.at("quad").u_locs.at("light_pos"), 1, glm::value_ptr(light_pos));
